@@ -9,7 +9,13 @@ const initBuffers = (gl) => {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
     // Now create an array of positions for the square.
-    const positions = [1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0];
+    // prettier-ignore
+    const positions = [
+        1.0, 1.0,
+        -1.0, 1.0,
+        1.0, -1.0,
+        -1.0, -1.0,
+    ];
 
     // Now pass the list of positions into WebGL to build the
     // shape. We do this by creating a Float32Array from the
@@ -28,9 +34,25 @@ const initBuffers = (gl) => {
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+    // prettier-ignore
+    const indices = [
+        0,  1,  2,
+        0,  2,  3,
+    ];
+
+    gl.bufferData(
+        gl.ELEMENT_ARRAY_BUFFER,
+        new Uint16Array(indices),
+        gl.STATIC_DRAW
+    );
+
     return {
         position: positionBuffer,
         color: colorBuffer,
+        indices: indexBuffer,
     };
 };
 
@@ -78,7 +100,6 @@ const drawScene = (gl, programInfo, buffers) => {
         const type = gl.FLOAT; // the data in the buffer is 32bit floats
         const normalize = false; // don't normalize
         const stride = 0; // how many bytes to get from one set of values to the next
-        // 0 = use type and numComponents above
         const offset = 0; // how many bytes inside the buffer to start from
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
         gl.vertexAttribPointer(
@@ -112,10 +133,12 @@ const drawScene = (gl, programInfo, buffers) => {
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
     }
 
+    // Tell WebGL which indices to use to index the vertices
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+
     // Tell WebGL to use our program when drawing
     gl.useProgram(programInfo.program);
 
-    // Set the shader uniforms
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.projectionMatrix,
         false,
@@ -128,9 +151,10 @@ const drawScene = (gl, programInfo, buffers) => {
     );
 
     {
+        const vertexCount = 6;
+        const type = gl.UNSIGNED_SHORT;
         const offset = 0;
-        const vertexCount = 4;
-        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
 };
 
@@ -159,7 +183,17 @@ const main = () => {
     const programInfo = getProgramInfo(gl);
     const buffer = initBuffers(gl);
 
-    drawScene(gl, programInfo, buffer);
+    var then = 0;
+
+    const render = (now) => {
+        //canvas.width = window.innerWidth;
+        //canvas.height = window.innerHeight;
+        now *= 0.001; // convert to second
+        const deltaTime = now - then;
+        drawScene(gl, programInfo, buffer);
+        requestAnimationFrame(render);
+    };
+    requestAnimationFrame(render);
 };
 
 window.onload = main;
