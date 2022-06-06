@@ -13,7 +13,30 @@
     <title>Proyecto GPU</title>
 </head>
 <body>
-    <!-- <h1>Proyecto GPU</h1> -->
+    <div class="menu container">
+        <div class="item">
+            <p class="label">RA</p>
+            <input type="text" id="ra" class="input">
+        </div>
+        <div class="item">
+            <p class="label">DEC</p>
+            <input type="text" id="dec" class="input">
+        </div>
+        <div class="item">
+            <p class="label">Type</p>
+            <div class="input">
+                <p class="inline">Star</p>
+                <input type="radio" id="star" name="type" value="star">
+                <p class="inline">Galaxy</p>
+                <input type="radio" id="galaxy" name="type" value="galaxy">
+                <p class="inline">Both</p>
+                <input type="radio" id="both" name="type" value="both">
+            </div>
+        </div>
+        <div class="item input">
+            <button type="button">Search</button>
+        </div>
+    </div>
     <canvas
         id="glCanvas"
         width="640"
