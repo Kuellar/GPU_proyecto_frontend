@@ -9,39 +9,60 @@
         crossorigin="anonymous" defer>
     </script>
     <script type="module" src="index.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="index.css">
     <title>Proyecto GPU</title>
 </head>
 <body>
-    <div class="menu container">
-        <div class="item">
-            <p class="label">RA</p>
-            <input type="number" id="ra" class="input" value="0" max="360" min="0">
-        </div>
-        <div class="item">
-            <p class="label">DEC</p>
-            <input type="number" id="dec" class="input" value="0" max="90" min="-90">
-        </div>
-        <div class="item">
-            <p class="label">Type</p>
-            <div class="input">
-                <p class="inline">Star</p>
-                <input type="radio" id="star" name="type" value="star">
-                <p class="inline">Galaxy</p>
-                <input type="radio" id="galaxy" name="type" value="galaxy">
-                <p class="inline">Both</p>
-                <input type="radio" id="both" name="type" value="both" checked>
-            </div>
-        </div>
-        <div class="item input">
-            <button type="button" id="search">Search</button>
-        </div>
+<div class="menu-section">
+    <div class="box">
+        <h1 class="title to-center">Proyecto</h1>
     </div>
-    <canvas
-        id="glCanvas"
-        width="640"
-        height="480"
-    >
-    </canvas>
+
+    <div class="field box">
+        <label class="label">RA</label>
+        <div class="control">
+            <input class="input" id="ra" type="text" value="0">
+        </div>
+        <p class="help">Rango: 0 - 360</p>
+    </div>
+
+    <div class="field box">
+        <label class="label">DEC</label>
+        <div class="control">
+            <input class="input" id="dec" type="text" value="0">
+        </div>
+        <p class="help">Rango: -90 - 90</p>
+    </div>
+
+    <div class="field box">
+        <label class="label">Type</label>
+        <div class="control">
+          <label class="radio">
+            Star
+            <input type="radio" name="type" id="star" value="star">
+          </label>
+
+          <label class="radio">
+            Galaxy
+            <input type="radio" name="type" id="galaxy" value="galaxy">
+          </label>
+
+          <label class="radio">
+            Both
+            <input type="radio" name="type" id="both" value="both" checked>
+          </label>
+        </div>
+      </div>
+
+    <button type="button" id="search" class="button is-link to-right">Search</button>
+</div>
+<!-- CANVAS OPENGL -->
+<canvas
+    id="glCanvas"
+    width="640"
+    height="480"
+>
+</canvas>
 </body>
 </html>
