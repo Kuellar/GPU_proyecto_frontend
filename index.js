@@ -1,6 +1,5 @@
 import { getProgramInfo } from "./setupGL.js";
 import { initBuffers, drawScene } from "./drawer.js";
-import { skyRequest } from "./request.js";
 
 // prettier-ignore
 const positions = [
@@ -61,16 +60,5 @@ const main = () => {
     };
     requestAnimationFrame(render);
 };
-
-const fetch_data = () => {
-    console.log("Fetching data");
-    const query = {
-        ra: document.getElementById("ra").value,
-        dec: document.getElementById("dec").value,
-        //type: document.querySelector('input[name="type"]:checked').value,
-    };
-    skyRequest(query);
-};
-document.getElementById("search").addEventListener("click", fetch_data);
 
 window.onload = main;
