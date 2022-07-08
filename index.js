@@ -1,64 +1,75 @@
-import { getProgramInfo } from "./setupGL.js";
-import { initBuffers, drawScene } from "./drawer.js";
+import { vsSource, fsSource } from "./js/shaders.js";
 
-// prettier-ignore
-const positions = [
-    1.0, 1.0,
-    -1.0, 1.0,
-    1.0, -1.0,
-    -1.0, -1.0,
-];
+var container;
+var camera, scene, renderer, clock;
+var uniforms;
 
-// prettier-ignore
-const colors = [
-    1.0,  1.0,  1.0,  1.0,    // white
-    1.0,  0.0,  0.0,  1.0,    // red
-    0.0,  1.0,  0.0,  1.0,    // green
-    0.0,  0.0,  1.0,  1.0,    // blue
-];
+const init = () => {
+    container = document.getElementById("threeJS");
 
-// prettier-ignore
-const indices = [
-    0,  1,  2,
-    0,  2,  3,
-];
+    camera = new THREE.Camera();
+    camera.position.z = 1;
 
-const main = () => {
-    const canvas = document.querySelector("#glCanvas");
+    scene = new THREE.Scene();
+    clock = new THREE.Clock();
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    var geometry = new THREE.PlaneBufferGeometry(2, 2);
 
-    // Initialize the GL context
-    const gl = canvas.getContext("webgl");
-
-    // Only continue if WebGL is available and working
-    if (gl === null) {
-        alert(
-            "Unable to initialize WebGL. Your browser or machine may not support it."
-        );
-        return;
-    }
-
-    // Set clear color to black, fully opaque
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    // Clear the color buffer with specified clear color
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    const programInfo = getProgramInfo(gl);
-    const buffer = initBuffers(gl, positions, colors, indices);
-
-    var then = 0;
-
-    const render = (now) => {
-        //canvas.width = window.innerWidth;
-        //canvas.height = window.innerHeight;
-        now *= 0.001; // convert to second
-        const deltaTime = now - then;
-        drawScene(gl, programInfo, buffer);
-        requestAnimationFrame(render);
+    uniforms = {
+        // BASE
+        u_time: {
+            type: "f",
+            value: 1.0,
+        },
+        u_resolution: {
+            type: "v2",
+            value: new THREE.Vector2(),
+        },
+        u_mouse: {
+            type: "v2",
+            value: new THREE.Vector2(),
+        },
     };
-    requestAnimationFrame(render);
+
+    var material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vsSource,
+        fragmentShader: fsSource,
+    });
+
+    var mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    container.appendChild(renderer.domElement);
+
+    onWindowResize();
+    window.addEventListener("resize", onWindowResize, false);
+
+    container.onmousemove = (e) => {
+        uniforms.u_mouse.value.x =
+            e.pageX * (window.innerWidth / window.innerHeight);
+        uniforms.u_mouse.value.y = -e.pageY + window.innerHeight;
+    };
 };
 
-window.onload = main;
+const onWindowResize = (event) => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    uniforms.u_resolution.value.x = renderer.domElement.width;
+    uniforms.u_resolution.value.y = renderer.domElement.height;
+};
+
+const animate = () => {
+    requestAnimationFrame(animate);
+    render();
+};
+
+const render = () => {
+    uniforms.u_time.value += clock.getDelta();
+    renderer.render(scene, camera);
+};
+
+window.onload = init();
+window.onload = animate();
