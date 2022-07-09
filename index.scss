@@ -1,0 +1,212 @@
+@charset "utf-8";
+@import "./node_modules/bulma/bulma.sass";
+
+:root {
+    --menu-width: 300px;
+    ---menu-width: -300px;
+  }
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+#threeJS {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+}
+
+.menu-section {
+    position: absolute;
+    background-color: whitesmoke;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    max-width: var(--menu-width);
+    width: var(--menu-width);
+}
+
+.to-right {
+    margin-right: 20px;
+    float: right;
+    margin-bottom: 10px;
+}
+
+.to-center {
+    text-align: center;
+}
+
+
+.sticky {
+    opacity: 1;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.custom-row {
+    height: 35px;
+    display: flex;
+    align-items: center;
+}
+.custom-row-left {
+    justify-content: right;
+    text-align: right;
+}
+
+.slider {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.in-line {
+    display: inline-flex;
+    align-items: center;
+}
+
+.eye-hide-icon {
+    display: none;
+}
+
+.eye-icon {
+    padding-left: 2px;
+}
+
+.eye-button {
+    margin-left: 5px;
+    margin-bottom: 5px;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+}
+
+.eye-button:active {
+    background-color: #F5F5F5;
+}
+
+.color-demo {
+    width: 25px;
+    height: 25px;
+    border-radius: 100%;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    color: rgba(255,255,255,0);
+}
+
+/* Menu toggler */
+.alternator {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 20px;
+    left: var(--menu-width);
+    width: 20px;
+    height: 70px;
+    border-radius: 0 10px 10px 0;
+}
+
+/* Menu animation */
+.menu-section-close {
+    animation-name: menu-animation-close;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    left: 0;
+}
+
+.menu-section-open {
+    animation-name: menu-animation-open;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    left: var(---menu-width);
+}
+
+.alternator-left {
+    animation-name: alternator-animation-close;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    transform: rotate(0);
+    left: var(--menu-width);
+}
+
+.alternator-right {
+    animation-name: alternator-animation-open;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    transform: rotate(1800deg);
+    left: 0;
+}
+
+.alternator-icon-left {
+    animation-name: alternator-icon-animation-close;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    transform: rotate(0);
+    left: var(--menu-width);
+}
+
+.alternator-icon-right {
+    animation-name: alternator-icon-animation-open;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    transform: rotate(1800deg);
+    left: 0;
+}
+
+@keyframes menu-animation-close {
+    from {left: 0;}
+    to {left: var(---menu-width);}
+}
+
+@keyframes menu-animation-open {
+    from {left: var(---menu-width);}
+    to {left: 0;}
+}
+
+@keyframes alternator-icon-animation-close {
+    from {
+        transform: rotate(0g);
+    }
+    to {
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes alternator-icon-animation-open {
+    from {
+        transform: rotate(-180deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes alternator-animation-close {
+    from {
+        left: var(--menu-width);
+    }
+    to {
+        left: 0;
+    }
+}
+
+@keyframes alternator-animation-open {
+    from {
+        left: 0;
+    }
+    to {
+        left: var(--menu-width);
+    }
+}
