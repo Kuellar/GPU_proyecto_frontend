@@ -11,7 +11,7 @@ export const skyRequest = (query) => {
     const params = new URLSearchParams(data).toString();
 
     fetch(
-        "http://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/RadialSearch?" +
+        "https://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/RadialSearch?" +
             params,
         {
             method: "GET",
