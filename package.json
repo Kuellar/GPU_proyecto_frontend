@@ -9,12 +9,10 @@
     "css-watch": "npm run css-build -- --watch",
     "start": "parcel ./src/index.html",
     "prebuild-dev": "shx rm -rf dist/*",
-    "build-dev": "parcel build ./src/index.html --public-url ./",
+    "build-dev": "parcel build ./src/index.html --no-minify --public-url ./",
     "prebuild": "shx rm -rf dist/*",
     "build": "parcel build ./src/index.html --public-url ./",
-    "push-gh-pages": "push-dir --dir=dist --branch=gh-pages --cleanup --verbose",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "push-gh-pages": "push-dir --dir=dist --branch=gh-pages --cleanup --verbose"
   },
   "devDependencies": {
     "cssnano": "^5.1.12",
