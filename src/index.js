@@ -6,7 +6,7 @@ import {
     Camera,
     Scene,
     WebGLRenderer,
-} from "three";
+} from "three.js";
 
 var container, camera, scene, renderer, clock;
 
