@@ -5,11 +5,20 @@ import { skyRequest } from "./request.js";
  */
 const fetch_data = () => {
     console.log("Fetching data");
+    // Set waiting gif
+    window.data = false;
+    let waiting = document.getElementById("waiting");
+    if (waiting.classList.contains("waiting-dots-hidden")) {
+        waiting.classList.remove("waiting-dots-hidden");
+        waiting.classList.add("waiting-dots-not-hidden");
+    }
+
     const query = {
         ra: document.getElementById("ra").value,
         dec: document.getElementById("dec").value,
         //type: document.querySelector('input[name="type"]:checked').value,
     };
+    // Send query
     skyRequest(query);
 };
 document.getElementById("search").addEventListener("click", fetch_data);

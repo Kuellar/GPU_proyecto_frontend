@@ -9,6 +9,7 @@ import {
 } from "three";
 
 var container, camera, scene, renderer, clock;
+var data;
 
 const init = () => {
     container = document.getElementById("threeJS");
@@ -19,10 +20,10 @@ const init = () => {
     scene = new Scene();
     clock = new Clock();
 
-    var geometry = new BoxGeometry();
-    var material = new MeshBasicMaterial({ color: 0x00ff00 });
-    var cube = new Mesh(geometry, material);
-    scene.add(cube);
+    // var geometry = new BoxGeometry();
+    // var material = new MeshBasicMaterial({ color: 0x00ff00 });
+    // var cube = new Mesh(geometry, material);
+    // scene.add(cube);
 
     renderer = new WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -31,6 +32,7 @@ const init = () => {
 
     onWindowResize();
     window.addEventListener("resize", onWindowResize, false);
+    renderer.render(scene, camera);
 };
 
 const onWindowResize = (event) => {
@@ -43,6 +45,14 @@ const animate = () => {
 };
 
 const render = () => {
+    if (!window.data) return;
+
+    // Set waiting gif
+    let waiting = document.getElementById("waiting");
+    waiting.classList.add("waiting-dots-hidden");
+    waiting.classList.remove("waiting-dots-not-hidden");
+
+    // Render
     renderer.render(scene, camera);
 };
 

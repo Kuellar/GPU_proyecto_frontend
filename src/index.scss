@@ -31,6 +31,7 @@ html, body {
 }
 
 .menu-section {
+    z-index: 20;
     position: absolute;
     background-color: whitesmoke;
     height: 100%;
@@ -216,5 +217,48 @@ html, body {
     }
     to {
         left: var(--menu-width);
+    }
+}
+
+.waiting-dots {
+    position: fixed; /* or absolute */
+    // z-index: 0;
+    top: 50%;
+    left: 50%;
+    margin-top: -75px;
+    margin-left: -75px;
+}
+
+.waiting-dots-hidden {
+    animation-name: waiting-dots-hide;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    opacity: 0;
+}
+
+.waiting-dots-not-hidden {
+    animation-name: waiting-dots-not-hide;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    opacity: 1;
+}
+
+@keyframes waiting-dots-hide {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes waiting-dots-not-hide {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }

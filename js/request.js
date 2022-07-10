@@ -3,7 +3,7 @@ export const skyRequest = (query) => {
         ...query,
         radius: "3",
         whichway: "equatorial",
-        limit: "10",
+        limit: "50",
         format: "json",
         fp: "none",
         whichquery: "imaging",
@@ -18,5 +18,9 @@ export const skyRequest = (query) => {
         }
     )
         .then((response) => response.json())
-        .then((data) => console.log(data));
+        .then((data) => {
+            console.log("QUERY:\n", data[1].Rows[0].query);
+            console.log("DATA:\n", data[0].Rows);
+            window.data = data[0].Rows; // SET GLOBAL
+        });
 };
