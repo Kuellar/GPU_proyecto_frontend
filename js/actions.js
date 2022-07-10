@@ -18,7 +18,6 @@ const fetch_data = () => {
         dec: document.getElementById("dec").value,
         //type: document.querySelector('input[name="type"]:checked').value,
     };
-    // Send query
     skyRequest(query);
 };
 document.getElementById("search").addEventListener("click", fetch_data);
