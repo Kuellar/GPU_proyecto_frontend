@@ -10,7 +10,7 @@ export const skyRequest = (query, ra, dec, amp) => {
     const params = new URLSearchParams(data).toString();
 
     fetch(
-        "http://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/RectangularSearch?" +
+        "https://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/RectangularSearch?" +
             params,
         {
             method: "GET",
