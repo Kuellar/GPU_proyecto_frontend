@@ -26,6 +26,7 @@ const toPixelPerfect = (vec2, aspect) => {
 };
 
 const init = () => {
+    window.data = [];
     container = document.getElementById("threeJS");
 
     // const aspect = window.innerWidth / window.innerHeight;
@@ -73,10 +74,17 @@ const init = () => {
 
     uniforms = {
         ...base_uniforms,
-        u_center: {
-            type: "v2",
-            // value: toPixelPerfect(pos, aspect),
-            value: pos,
+        u_stars_total: {
+            type: "int",
+            value: 1,
+        },
+        u_stars_ra: {
+            // type: "v2",
+            value: [0.0],
+        },
+        u_stars_dec: {
+            // type: "v2",
+            value: [0.0],
         },
     };
     var material = new ShaderMaterial({
@@ -149,9 +157,10 @@ const render = () => {
     base_uniforms.u_time.value += clock.getDelta();
 
     // NOT DATA
-    if (!window.data) {
-        // uniforms.u_center.value = toPixelPerfect(new Vector2(250, 250), aspect);
-        uniforms.u_center.value = new Vector2(250, 250);
+    if (!window.data.length) {
+        uniforms.u_stars_total.value = 1;
+        uniforms.u_stars_ra.value = [0];
+        uniforms.u_stars_dec.value = [0];
         renderer.render(scene, camera);
         return;
     }
@@ -160,6 +169,11 @@ const render = () => {
     let waiting = document.getElementById("waiting");
     waiting.classList.add("waiting-dots-hidden");
     waiting.classList.remove("waiting-dots-not-hidden");
+
+    // Ser new data
+    uniforms.u_stars_total.value = window.total;
+    uniforms.u_stars_ra.value = window.ras;
+    uniforms.u_stars_dec.value = window.decs;
 
     // Render
     renderer.render(scene, camera);

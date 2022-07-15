@@ -12,13 +12,37 @@ const fetch_data = () => {
         waiting.classList.remove("waiting-dots-hidden");
         waiting.classList.add("waiting-dots-not-hidden");
     }
+    const ra = Number(document.getElementById("ra").value);
+    const dec = Number(document.getElementById("dec").value);
+    const amp = Number(document.getElementById("amp").value) / 60;
+
+    if (isNaN(ra) || ra < 0 || ra > 360) {
+        alert("ERROR: RA " + ra);
+        return;
+    }
+
+    if (isNaN(dec) || dec < -90 || dec > 90) {
+        alert("ERROR: DEC " + dec);
+        return;
+    }
+
+    if (isNaN(amp) || amp <= 0 || amp > 180) {
+        alert("ERROR: Amplitud " + amp);
+        return;
+    }
+
+    window.data = false;
+    window.ra = ra;
+    window.dec = dec;
+    window.amp = amp;
 
     const query = {
-        ra: document.getElementById("ra").value,
-        dec: document.getElementById("dec").value,
-        //type: document.querySelector('input[name="type"]:checked').value,
+        min_ra: Math.max(ra - amp / 2, 0),
+        max_ra: Math.min(ra + amp / 2, 360),
+        min_dec: Math.max(dec - amp / 2, -90),
+        max_dec: Math.min(dec + amp / 2, 90),
     };
-    skyRequest(query);
+    skyRequest(query, ra, dec, amp);
 };
 document.getElementById("search").addEventListener("click", fetch_data);
 
