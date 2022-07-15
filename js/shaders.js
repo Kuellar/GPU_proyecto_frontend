@@ -5,8 +5,8 @@ void main() {
 }
 `;
 
-// Fragment shader program
-export const fsSource = `
+// Fragment shader program stars
+export const fsSourceStars = `
 // BASE
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
@@ -69,30 +69,71 @@ void main() {
 		col += star*size*color;
 	}
 
-	// // MAKE VARIOS // DELETE
-	// vec2 gv = fract(uv)-.5; // TODO: make uniform
-	// vec2 id = floor(uv);
-	// // MAKE VARIOS TEST 1
-	// // float n = Hash21(id); // random
-	// // col += Star(gv-(vec2(n, fract(n*34.))-.5), 1.);
-	// // MAKE VARIOS TEST 2
-	// for(int y=-1; y<=1; y++) {
-	// 	for(int x=-1; x<=1; x++) {
-	// 		vec2 offs = vec2(x, y);
-	// 		float n = Hash21(id+offs); // random
-	// 		float size = fract(n*345.32);
-	// 		float star = Star(gv-offs-vec2(n, fract(n*34.))+.5, smoothstep(.85, 1., size), vec2(0.,0.));
-	// 		star *= sin(u_time*3.*n*1.2831)*.5+.5; // Desaparecer -> change 1.2831
-
-	// 		// vec3 color = sin(vec3(.2, .3, .9)*fract(n*2345.2)*6.2831)*.5+.5;
-	// 		vec3 color = sin(vec3(.2, .2, .9)*fract(n*2345.2)*123.2)*.5+.5;
-	// 		color = color*vec3(1,.2,1.+size); // NOT GREEN // BIGGER STAR BLUE
-	// 		col += star*size*color;
+	// RED CELL
+	// for(int i = 0; i < u_stars_total; i++) {
+	// 	if (uv.x-u_stars_ra[i]>.02 && uv.x-u_stars_ra[i]<.023){
+	// 		if (uv.y-u_stars_dec[i]<.023 && uv.y-u_stars_dec[i]>-.023){
+	// 			col.r = 1.;
+	// 		}
+	// 	}
+	// 	if (-uv.x-u_stars_ra[i]>.02 && -uv.x-u_stars_ra[i]<.023){
+	// 		if (uv.y-u_stars_dec[i]<.023 && uv.y-u_stars_dec[i]>-.023){
+	// 			col.r = 1.;
+	// 		}
+	// 	}
+	// 	if (uv.y-u_stars_dec[i]>.02 && uv.y-u_stars_dec[i]<.023){
+	// 		if (uv.x-u_stars_ra[i]<.023 && uv.x-u_stars_ra[i]>-.023){
+	// 			col.r = 1.;
+	// 		}
+	// 	}
+	// 	if (-uv.y-u_stars_dec[i]>.02 && -uv.y-u_stars_dec[i]<.023){
+	// 		if (uv.x-u_stars_ra[i]<.023 && uv.x-u_stars_ra[i]>-.023){
+	// 			col.r = 1.;
+	// 		}
 	// 	}
 	// }
 
-	// GRILL // FIX
-	// if (gv.x>.48 || gv.y>.48) col.r = 1.;
+
+	// Output to screen
+    gl_FragColor = vec4(col,1.0);
+}
+`;
+
+// Fragment shader program point
+export const fsSourcePoints = `
+// BASE
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+uniform int u_stars_total;
+uniform float u_stars_ra[500];
+uniform float u_stars_dec[500];
+
+float Point(vec2 uv, vec2 pos) {
+	// MOVE
+	uv -= pos;
+
+	// Distance to center/pos
+	float dc = length(uv);
+	float m = 0.;
+	if (dc < 0.0025) m = 1.;
+
+	return m;
+}
+
+void main() {
+	// Normalized pixel coordinates
+	vec2 uv = (gl_FragCoord.xy-.5*u_resolution.xy)/u_resolution.xy;
+	uv *= 2.; // Size: -1 to 1
+
+	// Black screen
+	vec3 col = vec3(0,0,0);
+
+	// DRAW ALL STARS
+	for(int i = 0; i < u_stars_total; i++) {
+		float point = Point(uv, vec2(u_stars_ra[i],u_stars_dec[i]));
+		col += point;
+	}
 
 	// Output to screen
     gl_FragColor = vec4(col,1.0);

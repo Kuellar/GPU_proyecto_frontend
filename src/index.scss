@@ -7,7 +7,10 @@
 @import "../node_modules/bulma/sass/elements/title.sass";
 @import "../node_modules/bulma/sass/elements/box.sass";
 @import "../node_modules/bulma/sass/elements/icon.sass";
+@import "../node_modules/bulma/sass/grid/_all.sass";
 @import "../node_modules/bulma/sass/form/_all.sass";
+
+@import "../node_modules/bulma-extensions/bulma-switch/src/sass/index.sass";
 
 :root {
     --menu-width: 300px;
@@ -46,6 +49,9 @@ html, body {
     text-align: center;
 }
 
+.after-button{
+    margin-top: 80px;
+}
 
 .sticky {
     opacity: 1;
@@ -63,6 +69,11 @@ html, body {
 .custom-row-left {
     justify-content: right;
     text-align: right;
+}
+
+.custom-row-right {
+    justify-content: left;
+    text-align: left;
 }
 
 .slider {
