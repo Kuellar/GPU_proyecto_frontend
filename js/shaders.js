@@ -11,6 +11,7 @@ export const fsSourceStars = `
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 uniform float u_time;
+uniform float u_stars_amp;
 uniform int u_stars_total;
 uniform float u_stars_ra[500];
 uniform float u_stars_dec[500];
@@ -38,7 +39,7 @@ float Star(vec2 uv, float flare, vec2 pos) {
 	// DRAW STAR SPIKES END
 
 	m *= smoothstep(1., .2, dc);
-	return m*1.;
+	return m*6./(u_stars_amp*60.);
 }
 
 float Hash21(vec2 p){
@@ -67,32 +68,29 @@ void main() {
 		vec3 color = sin(vec3(.2, .2, .9)*fract(n*2345.2)*123.2)*.5+.5;
 		color = color*vec3(1.,.6,.6); // NOT GREEN // BIGGER STAR BLUE
 		col += star*size*color;
+
+		// RED CELL
+		// if (uv.x-u_stars_ra[i]>.02 && uv.x-u_stars_ra[i]<.023){
+		// 	if (uv.y-u_stars_dec[i]<.023 && uv.y-u_stars_dec[i]>-.023){
+		// 		col.r = 1.;
+		// 	}
+		// }
+		// if (-uv.x-u_stars_ra[i]>.02 && -uv.x-u_stars_ra[i]<.023){
+		// 	if (uv.y-u_stars_dec[i]<.023 && uv.y-u_stars_dec[i]>-.023){
+		// 		col.r = 1.;
+		// 	}
+		// }
+		// if (uv.y-u_stars_dec[i]>.02 && uv.y-u_stars_dec[i]<.023){
+		// 	if (uv.x-u_stars_ra[i]<.023 && uv.x-u_stars_ra[i]>-.023){
+		// 		col.r = 1.;
+		// 	}
+		// }
+		// if (-uv.y-u_stars_dec[i]>.02 && -uv.y-u_stars_dec[i]<.023){
+		// 	if (uv.x-u_stars_ra[i]<.023 && uv.x-u_stars_ra[i]>-.023){
+		// 		col.r = 1.;
+		// 	}
+		// }
 	}
-
-	// RED CELL
-	// for(int i = 0; i < u_stars_total; i++) {
-	// 	if (uv.x-u_stars_ra[i]>.02 && uv.x-u_stars_ra[i]<.023){
-	// 		if (uv.y-u_stars_dec[i]<.023 && uv.y-u_stars_dec[i]>-.023){
-	// 			col.r = 1.;
-	// 		}
-	// 	}
-	// 	if (-uv.x-u_stars_ra[i]>.02 && -uv.x-u_stars_ra[i]<.023){
-	// 		if (uv.y-u_stars_dec[i]<.023 && uv.y-u_stars_dec[i]>-.023){
-	// 			col.r = 1.;
-	// 		}
-	// 	}
-	// 	if (uv.y-u_stars_dec[i]>.02 && uv.y-u_stars_dec[i]<.023){
-	// 		if (uv.x-u_stars_ra[i]<.023 && uv.x-u_stars_ra[i]>-.023){
-	// 			col.r = 1.;
-	// 		}
-	// 	}
-	// 	if (-uv.y-u_stars_dec[i]>.02 && -uv.y-u_stars_dec[i]<.023){
-	// 		if (uv.x-u_stars_ra[i]<.023 && uv.x-u_stars_ra[i]>-.023){
-	// 			col.r = 1.;
-	// 		}
-	// 	}
-	// }
-
 
 	// Output to screen
     gl_FragColor = vec4(col,1.0);

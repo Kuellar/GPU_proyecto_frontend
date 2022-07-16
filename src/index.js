@@ -48,6 +48,10 @@ const init = () => {
 
     uniforms = {
         ...base_uniforms,
+        u_stars_amp: {
+            type: "float",
+            value: 1 / 60,
+        },
         u_stars_total: {
             type: "int",
             value: 1,
@@ -112,6 +116,7 @@ const render = () => {
 
     // NOT DATA
     if (!window.data.length) {
+        uniforms.u_stars_amp.value = 1 / 60;
         uniforms.u_stars_total.value = 1;
         uniforms.u_stars_ra.value = [0];
         uniforms.u_stars_dec.value = [0];
@@ -125,6 +130,7 @@ const render = () => {
     waiting.classList.remove("waiting-dots-not-hidden");
 
     // Set new data
+    uniforms.u_stars_amp.value = window.amp;
     uniforms.u_stars_total.value = window.total;
     uniforms.u_stars_ra.value = window.ras;
     uniforms.u_stars_dec.value = window.decs;
