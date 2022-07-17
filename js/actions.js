@@ -4,9 +4,12 @@ import { skyRequest } from "./request.js";
  * Action taken by pressing "Search".
  */
 const fetch_data = () => {
+    window.points = [];
+    window.starfieldLoaded = false;
+    window.pointsLoaded = false;
+    window.triangulationLoaded = false;
     console.log("Fetching data");
     // Set waiting gif
-    window.data = false;
     let waiting = document.getElementById("waiting");
     if (waiting.classList.contains("waiting-dots-hidden")) {
         waiting.classList.remove("waiting-dots-hidden");

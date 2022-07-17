@@ -13,8 +13,7 @@ uniform vec2 u_mouse;
 uniform float u_time;
 uniform float u_stars_amp;
 uniform int u_stars_total;
-uniform float u_stars_ra[500];
-uniform float u_stars_dec[500];
+uniform float u_stars_pos[1000];
 
 mat2 Rotation(float angle) {
 	float s=sin(angle), c=cos(angle);
@@ -63,7 +62,7 @@ void main() {
 	for(int i = 0; i < u_stars_total; i++) {
 		float n = Hash21(vec2(i,i)); // random
 		float size = fract(n*345.32+0.8); // random size
-		float star = Star(uv, smoothstep(.85, 1., size), vec2(u_stars_ra[i],u_stars_dec[i]));
+		float star = Star(uv, smoothstep(.85, 1., size), vec2(u_stars_pos[i*2],u_stars_pos[i*2+1]));
 		star *= sin(u_time*n*.75)*.5+.5;
 		vec3 color = sin(vec3(.2, .2, .9)*fract(n*2345.2)*123.2)*.5+.5;
 		color = color*vec3(1.,.6,.6); // NOT GREEN // BIGGER STAR BLUE

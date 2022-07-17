@@ -33,6 +33,7 @@
   "dependencies": {
     "bulma": "^0.9.4",
     "bulma-extensions": "^6.2.7",
+    "delaunator": "^5.0.0",
     "node-sass": "^7.0.1",
     "three": "^0.142.0"
   }

@@ -36,14 +36,13 @@ export const skyRequest = (query, ra, dec, amp) => {
                 alert("No data");
                 return;
             }
-            window.data = star_data;
-            window.total = data[0].Rows.length;
-            window.ras = star_data.map(
-                (x) => ((x.ra - (ra - amp / 2)) * 2) / amp - 1
-            );
-            window.decs = star_data.map(
-                (x) => ((x.dec - (dec - amp / 2)) * 2) / amp - 1
-            );
-            // console.log(window.ras, window.decs);
+            star_data.forEach((star) => {
+                window.points.push(((star.ra - (ra - amp / 2)) * 2) / amp - 1);
+                window.points.push(
+                    ((star.dec - (dec - amp / 2)) * 2) / amp - 1
+                );
+            });
+            window.amp = amp;
+            console.log(window.points);
         });
 };
