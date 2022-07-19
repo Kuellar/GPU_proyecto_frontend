@@ -16,6 +16,10 @@ const fetch_data = () => {
     window.edgesInner = [];
     window.voidSets = [];
     window.voidSetsIdx = [];
+    document.getElementById("est-points").textContent = 0;
+    document.getElementById("est-triang").textContent = 0;
+    document.getElementById("est-edges").textContent = 0;
+    document.getElementById("est-edges-inner").textContent = 0;
 
     // Disable void
     document.getElementById("vis-void").setAttribute("disabled", "");

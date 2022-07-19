@@ -193,6 +193,8 @@ const render = () => {
 
             // Calculate triangulation
             window.delaunay = new Delaunator(window.points);
+            document.getElementById("est-triang").textContent =
+                window.delaunay.triangles.length / 3;
             var meshIndex = []; // delaunay index => three.js index
             for (let i = 0; i < window.delaunay.triangles.length; i++) {
                 meshIndex.push(window.delaunay.triangles[i]);

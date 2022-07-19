@@ -52,6 +52,8 @@ export const skyRequest = (query, ra, dec, amp) => {
             window.points = new Float32Array(window.points); // CHECK
             window.drawing_points = new Float32Array(window.drawing_points); // CHECK
             window.amp = amp;
+            document.getElementById("est-points").textContent =
+                window.points.length / 2;
             // console.log(window.points);
         });
 };

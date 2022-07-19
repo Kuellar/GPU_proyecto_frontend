@@ -101,6 +101,9 @@ export const generateEdges = async () => {
     window.edges = edgeList.sort((a, b) => a[2] - b[2]);
     window.edgesInner = edgeListInner;
     window.edgesLoaded = true;
+    document.getElementById("est-edges").textContent = window.edges.length;
+    document.getElementById("est-edges-inner").textContent =
+        window.edgesInner.length;
     // Allow void
     document.getElementById("vis-void").removeAttribute("disabled", "");
     return true;
