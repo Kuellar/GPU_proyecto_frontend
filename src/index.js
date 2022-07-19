@@ -249,7 +249,7 @@ const render = () => {
 
             // Search sets (ALL -> check for alternative)
             while (
-                marked_triangules.length <
+                marked_triangules_count <
                 window.delaunay.triangles.length / 3
             ) {
                 var triangle_set = [];
@@ -258,7 +258,7 @@ const render = () => {
                 for (var le_idx = 0; le_idx < window.edges.length; le_idx++) {
                     var lefound = false;
                     var le = window.edges[window.edges.length - 1 - le_idx];
-                    if (!marked_triangules.includes(le[3])) {
+                    if (!marked_triangules[le[3]]) {
                         triangle_set.push(le[3]);
                         var point_idx_1 = window.delaunay.triangles[le[3]];
                         var point_idx_2 = window.delaunay.triangles[le[3] + 1];
@@ -268,11 +268,12 @@ const render = () => {
                             point_idx_2,
                             point_idx_3
                         );
-                        marked_triangules.push(le[3]);
+                        marked_triangules[le[3]] = true;
+                        marked_triangules_count++;
                         lefound = true;
                     }
                     if (le[4]) {
-                        if (!marked_triangules.includes(le[4])) {
+                        if (!marked_triangules[le[4]]) {
                             triangle_set.push(le[4]);
                             var point_idx_1 = window.delaunay.triangles[le[4]];
                             var point_idx_2 =
@@ -284,7 +285,8 @@ const render = () => {
                                 point_idx_2,
                                 point_idx_3
                             );
-                            marked_triangules.push(le[4]);
+                            marked_triangules[le[4]] = true;
+                            marked_triangules_count++;
                             lefound = true;
                         }
                     }
@@ -320,7 +322,7 @@ const render = () => {
                         }
                         // If t1 is not in the system, check longest edge
                         if (!t1_inc) {
-                            if (marked_triangules.includes(t1)) continue;
+                            if (marked_triangules[t1]) continue;
                             var p1 = window.delaunay.triangles[t1] * 2;
                             var p2 = window.delaunay.triangles[t1 + 1] * 2;
                             var p3 = window.delaunay.triangles[t1 + 2] * 2;
@@ -356,13 +358,14 @@ const render = () => {
                             if (dmax == valid_edges[e][2]) {
                                 found = true;
                                 triangle_set.push(t1);
-                                marked_triangules.push(t1);
+                                marked_triangules[t1] = true;
+                                marked_triangules_count++;
                                 triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
                                 valid_edges.splice(e, 1);
                                 e--;
                             }
                         } else {
-                            if (marked_triangules.includes(t2)) continue;
+                            if (marked_triangules[t2]) continue;
                             var p1 = window.delaunay.triangles[t2] * 2;
                             var p2 = window.delaunay.triangles[t2 + 1] * 2;
                             var p3 = window.delaunay.triangles[t2 + 2] * 2;
@@ -398,7 +401,8 @@ const render = () => {
                             if (dmax == valid_edges[e][2]) {
                                 found = true;
                                 triangle_set.push(t2);
-                                marked_triangules.push(t2);
+                                marked_triangules[t2] = true;
+                                marked_triangules_count++;
                                 triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
                                 valid_edges.splice(e, 1);
                                 e--;
