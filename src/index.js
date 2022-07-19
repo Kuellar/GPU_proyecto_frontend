@@ -1,5 +1,5 @@
 import { vsSource, fsSourcePoints, fsSourceStars } from "../js/shaders.js";
-import { generateEdges } from "../js/utils.js";
+import { generateEdges, generateVoid } from "../js/utils.js";
 import {
     Clock,
     ShaderMaterial,
@@ -39,6 +39,8 @@ const init = () => {
     window.edges = [];
     window.edgesInner = [];
     window.delaunay = new Delaunator(window.points);
+    window.voidSets = [];
+    window.voidSetsIdx = [];
     pointShader = false;
 
     // Set void disabled to avoid errors
@@ -233,195 +235,12 @@ const render = () => {
         if (!window.voidLoaded && window.edgesLoaded) {
             window.voidLoaded = true;
 
-            // console.log("////////DATOS////////");
-            // console.log("point", window.points);
-            // console.log("triangulation", window.delaunay.triangles);
-            // console.log("edge", window.edges);
-
-            //  Classification
-            var sets = []; // Sets of possibles voids
-            var sets_idx = []; // Sets of possibles voids for drawing
-            var marked_triangules = []; // Array of booleans
-            var marked_triangules_count = 0;
-
-            // Optimization (?)
-            var valid_edges = window.edgesInner.valueOf();
-
-            // Search sets (ALL -> check for alternative)
-            while (
-                marked_triangules_count <
-                window.delaunay.triangles.length / 3
-            ) {
-                var triangle_set = [];
-                var triangle_set_idx = [];
-                // Search longes edge (unmarked triangules)
-                for (var le_idx = 0; le_idx < window.edges.length; le_idx++) {
-                    var lefound = false;
-                    var le = window.edges[window.edges.length - 1 - le_idx];
-                    if (!marked_triangules[le[3]]) {
-                        triangle_set.push(le[3]);
-                        var point_idx_1 = window.delaunay.triangles[le[3]];
-                        var point_idx_2 = window.delaunay.triangles[le[3] + 1];
-                        var point_idx_3 = window.delaunay.triangles[le[3] + 2];
-                        triangle_set_idx.push(
-                            point_idx_1,
-                            point_idx_2,
-                            point_idx_3
-                        );
-                        marked_triangules[le[3]] = true;
-                        marked_triangules_count++;
-                        lefound = true;
-                    }
-                    if (le[4]) {
-                        if (!marked_triangules[le[4]]) {
-                            triangle_set.push(le[4]);
-                            var point_idx_1 = window.delaunay.triangles[le[4]];
-                            var point_idx_2 =
-                                window.delaunay.triangles[le[4] + 1];
-                            var point_idx_3 =
-                                window.delaunay.triangles[le[4] + 2];
-                            triangle_set_idx.push(
-                                point_idx_1,
-                                point_idx_2,
-                                point_idx_3
-                            );
-                            marked_triangules[le[4]] = true;
-                            marked_triangules_count++;
-                            lefound = true;
-                        }
-                    }
-                    if (lefound) break;
-                }
-
-                // ERROR
-                if (triangle_set.length === 0) {
-                    console.log("ERROR");
-                    break;
-                }
-
-                // Search adjacent triangules
-                var found = true;
-                while (found) {
-                    found = false;
-                    for (var e = 0; e < valid_edges.length; e++) {
-                        var t1 = valid_edges[e][3];
-                        var t2 = valid_edges[e][4];
-                        if (!t2) {
-                            console.log("Impossible case");
-                            continue;
-                        }
-                        var t1_inc = triangle_set.includes(t1);
-                        var t2_inc = triangle_set.includes(t2);
-                        if (!t1_inc && !t2_inc) continue;
-
-                        if (t1_inc && t2_inc) {
-                            console.log("TEST");
-                            valid_edges.splice(e, 1);
-                            e--;
-                            continue;
-                        }
-                        // If t1 is not in the system, check longest edge
-                        if (!t1_inc) {
-                            if (marked_triangules[t1]) continue;
-                            var p1 = window.delaunay.triangles[t1] * 2;
-                            var p2 = window.delaunay.triangles[t1 + 1] * 2;
-                            var p3 = window.delaunay.triangles[t1 + 2] * 2;
-                            var dmax = Math.max(
-                                Math.pow(
-                                    window.points[p1] - window.points[p2],
-                                    2
-                                ) +
-                                    Math.pow(
-                                        window.points[p1 + 1] -
-                                            window.points[p2 + 1],
-                                        2
-                                    ),
-                                Math.pow(
-                                    window.points[p1] - window.points[p3],
-                                    2
-                                ) +
-                                    Math.pow(
-                                        window.points[p1 + 1] -
-                                            window.points[p3 + 1],
-                                        2
-                                    ),
-                                Math.pow(
-                                    window.points[p2] - window.points[p3],
-                                    2
-                                ) +
-                                    Math.pow(
-                                        window.points[p2 + 1] -
-                                            window.points[p3 + 1],
-                                        2
-                                    )
-                            );
-                            if (dmax == valid_edges[e][2]) {
-                                found = true;
-                                triangle_set.push(t1);
-                                marked_triangules[t1] = true;
-                                marked_triangules_count++;
-                                triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
-                                valid_edges.splice(e, 1);
-                                e--;
-                            }
-                        } else {
-                            if (marked_triangules[t2]) continue;
-                            var p1 = window.delaunay.triangles[t2] * 2;
-                            var p2 = window.delaunay.triangles[t2 + 1] * 2;
-                            var p3 = window.delaunay.triangles[t2 + 2] * 2;
-                            var dmax = Math.max(
-                                Math.pow(
-                                    window.points[p1] - window.points[p2],
-                                    2
-                                ) +
-                                    Math.pow(
-                                        window.points[p1 + 1] -
-                                            window.points[p2 + 1],
-                                        2
-                                    ),
-                                Math.pow(
-                                    window.points[p1] - window.points[p3],
-                                    2
-                                ) +
-                                    Math.pow(
-                                        window.points[p1 + 1] -
-                                            window.points[p3 + 1],
-                                        2
-                                    ),
-                                Math.pow(
-                                    window.points[p2] - window.points[p3],
-                                    2
-                                ) +
-                                    Math.pow(
-                                        window.points[p2 + 1] -
-                                            window.points[p3 + 1],
-                                        2
-                                    )
-                            );
-                            if (dmax == valid_edges[e][2]) {
-                                found = true;
-                                triangle_set.push(t2);
-                                marked_triangules[t2] = true;
-                                marked_triangules_count++;
-                                triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
-                                valid_edges.splice(e, 1);
-                                e--;
-                            }
-                        }
-                    }
-                }
-                sets.push(triangle_set);
-                sets_idx.push(triangle_set_idx);
+            if (window.voidSets.length === 0) {
+                generateVoid();
             }
 
-            if (sets.length === 0) {
-                console.log("ERROR FATAL");
-                renderer.render(scene, camera);
-                return;
-            }
-            console.log("SETS: ", sets);
             // DRAW VOID
-            for (var i = 0; i < Math.min(10, sets_idx.length); i++) {
+            for (var i = 0; i < Math.min(10, window.voidSetsIdx.length); i++) {
                 const geometryVoid = new BufferGeometry();
                 geometryVoid.setAttribute(
                     "position",
@@ -429,7 +248,7 @@ const render = () => {
                 );
                 // geometryVoid.setIndex([point_idx_1, point_idx_2, point_idx_3]);
 
-                geometryVoid.setIndex(sets_idx[i]);
+                geometryVoid.setIndex(window.voidSetsIdx[i]);
                 const materialVoid = new MeshBasicMaterial({
                     color: new Color(1 / (i + 1), 1 / (i + 1), 1 / (i + 1)),
                     side: DoubleSide,

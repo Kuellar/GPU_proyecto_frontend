@@ -14,6 +14,8 @@ const fetch_data = () => {
     window.edgesLoaded = false;
     window.edges = [];
     window.edgesInner = [];
+    window.voidSets = [];
+    window.voidSetsIdx = [];
 
     // Disable void
     document.getElementById("vis-void").setAttribute("disabled", "");
