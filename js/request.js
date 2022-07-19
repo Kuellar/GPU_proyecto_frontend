@@ -1,4 +1,4 @@
-export const skyRequest = (query, ra, dec, amp) => {
+export const skyRequest = (query, ra, dec, amp, rect) => {
     const data = {
         ...query,
         whichway: "equatorial",
@@ -8,14 +8,19 @@ export const skyRequest = (query, ra, dec, amp) => {
         whichquery: "imaging",
     };
     const params = new URLSearchParams(data).toString();
-
-    fetch(
-        "https://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/RectangularSearch?" +
-            params,
-        {
-            method: "GET",
-        }
-    )
+    var url = "";
+    if (rect) {
+        url =
+            "https://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/RectangularSearch?" +
+            params;
+    } else {
+        url =
+            "https://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/RadialSearch?" +
+            params;
+    }
+    fetch(url, {
+        method: "GET",
+    })
         .then((response) => response.json())
         .then((data) => {
             console.log("QUERY:\n", data[1].Rows[0].query);

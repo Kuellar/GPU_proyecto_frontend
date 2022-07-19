@@ -1,5 +1,16 @@
 // Async functions
 
+const edgeLengCalc = (ax, ay, bx, by) => {
+    const res = Math.pow(ax - bx, 2) + Math.pow(ay - by, 2);
+    return Math.sqrt(res);
+};
+
+const areaCalc = (e1, e2, e3) => {
+    const s = (e1 + e2 + e3) / 2;
+    const res = Math.sqrt(s * (s - e1) * (s - e2) * (s - e3));
+    return res;
+};
+
 export const generateEdges = async () => {
     // Get array of edges
     var tmp;
@@ -15,16 +26,12 @@ export const generateEdges = async () => {
                 window.delaunay.triangles[i],
                 window.delaunay.triangles[i + 1]
             ),
-            Math.pow(
-                window.points[window.delaunay.triangles[i] * 2] -
-                    window.points[window.delaunay.triangles[i + 1] * 2],
-                2
-            ) +
-                Math.pow(
-                    window.points[window.delaunay.triangles[i] * 2 + 1] -
-                        window.points[window.delaunay.triangles[i + 1] * 2 + 1],
-                    2
-                ),
+            edgeLengCalc(
+                window.points[window.delaunay.triangles[i] * 2],
+                window.points[window.delaunay.triangles[i] * 2 + 1],
+                window.points[window.delaunay.triangles[i + 1] * 2],
+                window.points[window.delaunay.triangles[i + 1] * 2 + 1]
+            ),
             i,
             null,
         ];
@@ -45,16 +52,12 @@ export const generateEdges = async () => {
                 window.delaunay.triangles[i],
                 window.delaunay.triangles[i + 2]
             ),
-            Math.pow(
-                window.points[window.delaunay.triangles[i] * 2] -
-                    window.points[window.delaunay.triangles[i + 2] * 2],
-                2
-            ) +
-                Math.pow(
-                    window.points[window.delaunay.triangles[i] * 2 + 1] -
-                        window.points[window.delaunay.triangles[i + 2] * 2 + 1],
-                    2
-                ),
+            edgeLengCalc(
+                window.points[window.delaunay.triangles[i] * 2],
+                window.points[window.delaunay.triangles[i] * 2 + 1],
+                window.points[window.delaunay.triangles[i + 2] * 2],
+                window.points[window.delaunay.triangles[i + 2] * 2 + 1]
+            ),
             i,
             null,
         ];
@@ -75,16 +78,12 @@ export const generateEdges = async () => {
                 window.delaunay.triangles[i + 1],
                 window.delaunay.triangles[i + 2]
             ),
-            Math.pow(
-                window.points[window.delaunay.triangles[i + 1] * 2] -
-                    window.points[window.delaunay.triangles[i + 2] * 2],
-                2
-            ) +
-                Math.pow(
-                    window.points[window.delaunay.triangles[i + 1] * 2 + 1] -
-                        window.points[window.delaunay.triangles[i + 2] * 2 + 1],
-                    2
-                ),
+            edgeLengCalc(
+                window.points[window.delaunay.triangles[i + 1] * 2],
+                window.points[window.delaunay.triangles[i + 1] * 2 + 1],
+                window.points[window.delaunay.triangles[i + 2] * 2],
+                window.points[window.delaunay.triangles[i + 2] * 2 + 1]
+            ),
             i,
             null,
         ];
@@ -106,14 +105,28 @@ export const generateEdges = async () => {
         window.edgesInner.length;
     // Allow void
     document.getElementById("vis-void").removeAttribute("disabled", "");
-    return true;
+
+    // Generate triang - edge
+    var triangEdge = Array(window.delaunay.triangles.length / 3);
+    for (var i = 0; i < window.edges.length; i++) {
+        var idx1 = window.edges[i][3] / 3;
+        var idx2 = window.edges[i][4] / 3;
+        if (triangEdge[idx1]) triangEdge[idx1].push(i);
+        else triangEdge[idx1] = [i];
+        if (idx2) {
+            if (triangEdge[idx2]) triangEdge[idx2].push(i);
+            else triangEdge[idx2] = [i];
+        }
+    }
+    window.triangEdge = triangEdge;
 };
 
 export const generateVoid = () => {
     //  Classification
     var sets = []; // Sets of possibles voids
+    var sets_area = []; // Sets of possibles voids
     var sets_idx = []; // Sets of possibles voids for drawing
-    var marked_triangules = []; // Array of booleans
+    var marked_triangules = Array(window.delaunay.triangles.length / 3); // Array of booleans
     var marked_triangules_count = 0;
 
     // Optimization (?)
@@ -123,6 +136,7 @@ export const generateVoid = () => {
     while (marked_triangules_count < window.delaunay.triangles.length / 3) {
         var triangle_set = [];
         var triangle_set_idx = [];
+        var area = 0;
         // Search longes edge (unmarked triangules)
         for (var le_idx = 0; le_idx < window.edges.length; le_idx++) {
             var lefound = false;
@@ -136,6 +150,11 @@ export const generateVoid = () => {
                 marked_triangules[le[3]] = true;
                 marked_triangules_count++;
                 lefound = true;
+                area += areaCalc(
+                    window.edges[window.triangEdge[le[3] / 3][0]][2],
+                    window.edges[window.triangEdge[le[3] / 3][1]][2],
+                    window.edges[window.triangEdge[le[3] / 3][2]][2]
+                );
             }
             if (le[4]) {
                 if (!marked_triangules[le[4]]) {
@@ -151,6 +170,11 @@ export const generateVoid = () => {
                     marked_triangules[le[4]] = true;
                     marked_triangules_count++;
                     lefound = true;
+                    area += areaCalc(
+                        window.edges[window.triangEdge[le[4] / 3][0]][2],
+                        window.edges[window.triangEdge[le[4] / 3][1]][2],
+                        window.edges[window.triangEdge[le[4] / 3][2]][2]
+                    );
                 }
             }
             if (lefound) break;
@@ -173,8 +197,8 @@ export const generateVoid = () => {
                     console.log("Impossible case");
                     continue;
                 }
-                var t1_inc = triangle_set.includes(t1);
-                var t2_inc = triangle_set.includes(t2);
+                var t1_inc = triangle_set.includes(t1); // Check
+                var t2_inc = triangle_set.includes(t2); // Check
                 if (!t1_inc && !t2_inc) continue;
 
                 if (t1_inc && t2_inc) {
@@ -189,21 +213,24 @@ export const generateVoid = () => {
                     var p2 = window.delaunay.triangles[t1 + 1] * 2;
                     var p3 = window.delaunay.triangles[t1 + 2] * 2;
                     var dmax = Math.max(
-                        Math.pow(window.points[p1] - window.points[p2], 2) +
-                            Math.pow(
-                                window.points[p1 + 1] - window.points[p2 + 1],
-                                2
-                            ),
-                        Math.pow(window.points[p1] - window.points[p3], 2) +
-                            Math.pow(
-                                window.points[p1 + 1] - window.points[p3 + 1],
-                                2
-                            ),
-                        Math.pow(window.points[p2] - window.points[p3], 2) +
-                            Math.pow(
-                                window.points[p2 + 1] - window.points[p3 + 1],
-                                2
-                            )
+                        edgeLengCalc(
+                            window.points[p1],
+                            window.points[p1 + 1],
+                            window.points[p2],
+                            window.points[p2 + 1]
+                        ),
+                        edgeLengCalc(
+                            window.points[p1],
+                            window.points[p1 + 1],
+                            window.points[p3],
+                            window.points[p3 + 1]
+                        ),
+                        edgeLengCalc(
+                            window.points[p2],
+                            window.points[p2 + 1],
+                            window.points[p3],
+                            window.points[p3 + 1]
+                        )
                     );
                     if (dmax == valid_edges[e][2]) {
                         found = true;
@@ -213,6 +240,11 @@ export const generateVoid = () => {
                         triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
                         valid_edges.splice(e, 1);
                         e--;
+                        area += areaCalc(
+                            window.edges[window.triangEdge[t1 / 3][0]][2],
+                            window.edges[window.triangEdge[t1 / 3][1]][2],
+                            window.edges[window.triangEdge[t1 / 3][2]][2]
+                        );
                     }
                 } else {
                     if (marked_triangules[t2]) continue;
@@ -220,21 +252,24 @@ export const generateVoid = () => {
                     var p2 = window.delaunay.triangles[t2 + 1] * 2;
                     var p3 = window.delaunay.triangles[t2 + 2] * 2;
                     var dmax = Math.max(
-                        Math.pow(window.points[p1] - window.points[p2], 2) +
-                            Math.pow(
-                                window.points[p1 + 1] - window.points[p2 + 1],
-                                2
-                            ),
-                        Math.pow(window.points[p1] - window.points[p3], 2) +
-                            Math.pow(
-                                window.points[p1 + 1] - window.points[p3 + 1],
-                                2
-                            ),
-                        Math.pow(window.points[p2] - window.points[p3], 2) +
-                            Math.pow(
-                                window.points[p2 + 1] - window.points[p3 + 1],
-                                2
-                            )
+                        edgeLengCalc(
+                            window.points[p1],
+                            window.points[p1 + 1],
+                            window.points[p2],
+                            window.points[p2 + 1]
+                        ),
+                        edgeLengCalc(
+                            window.points[p1],
+                            window.points[p1 + 1],
+                            window.points[p3],
+                            window.points[p3 + 1]
+                        ),
+                        edgeLengCalc(
+                            window.points[p2],
+                            window.points[p2 + 1],
+                            window.points[p3],
+                            window.points[p3 + 1]
+                        )
                     );
                     if (dmax == valid_edges[e][2]) {
                         found = true;
@@ -244,14 +279,21 @@ export const generateVoid = () => {
                         triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
                         valid_edges.splice(e, 1);
                         e--;
+                        area += areaCalc(
+                            window.edges[window.triangEdge[t2 / 3][0]][2],
+                            window.edges[window.triangEdge[t2 / 3][1]][2],
+                            window.edges[window.triangEdge[t2 / 3][2]][2]
+                        );
                     }
                 }
             }
         }
         sets.push(triangle_set);
         sets_idx.push(triangle_set_idx);
+        sets_area.push(area);
     }
 
+    window.setArea = sets_area;
     window.voidSets = sets;
     window.voidSetsIdx = sets_idx;
 };

@@ -41,6 +41,8 @@ const init = () => {
     window.delaunay = new Delaunator(window.points);
     window.voidSets = [];
     window.voidSetsIdx = [];
+    window.triangEdge = [];
+    window.setArea = [];
     pointShader = false;
 
     // Set void disabled to avoid errors
@@ -242,7 +244,12 @@ const render = () => {
             }
 
             // DRAW VOID
+            var setAreaCopy = [...window.setArea];
             for (var i = 0; i < Math.min(10, window.voidSetsIdx.length); i++) {
+                var idxBigger = window.setArea.indexOf(
+                    Math.max(...setAreaCopy)
+                );
+                setAreaCopy[idxBigger] = 0;
                 const geometryVoid = new BufferGeometry();
                 geometryVoid.setAttribute(
                     "position",
@@ -250,7 +257,7 @@ const render = () => {
                 );
                 // geometryVoid.setIndex([point_idx_1, point_idx_2, point_idx_3]);
 
-                geometryVoid.setIndex(window.voidSetsIdx[i]);
+                geometryVoid.setIndex(window.voidSetsIdx[idxBigger]);
                 const materialVoid = new MeshBasicMaterial({
                     color: new Color(1 / (i + 1), 1 / (i + 1), 1 / (i + 1)),
                     side: DoubleSide,
