@@ -4,10 +4,21 @@ import { skyRequest } from "./request.js";
  * Action taken by pressing "Search".
  */
 const fetch_data = () => {
+    // Set base data empty
     window.points = [];
+    window.drawing_points = [];
     window.starfieldLoaded = false;
     window.pointsLoaded = false;
     window.triangulationLoaded = false;
+    window.voidLoaded = false;
+    window.edgesLoaded = false;
+    window.edges = [];
+    window.edgesInner = [];
+
+    // Disable void
+    document.getElementById("vis-void").setAttribute("disabled", "");
+    document.getElementById("vis-void").checked = false;
+
     console.log("Fetching data");
     // Set waiting gif
     let waiting = document.getElementById("waiting");

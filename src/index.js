@@ -1,11 +1,12 @@
 import { vsSource, fsSourcePoints, fsSourceStars } from "../js/shaders.js";
+import { generateEdges } from "../js/utils.js";
 import {
     Clock,
     ShaderMaterial,
     Mesh,
     PlaneBufferGeometry,
     BufferGeometry,
-    BufferAttribute,
+    Color,
     Scene,
     WebGLRenderer,
     Vector2,
@@ -15,7 +16,7 @@ import {
     Points,
     Float32BufferAttribute,
     PointsMaterial,
-    MeshLambertMaterial,
+    LineSegments,
     LineBasicMaterial,
     DoubleSide,
 } from "three";
@@ -27,13 +28,24 @@ var base_uniforms, starfield_uniforms;
 var materialStars, materialPoints, pointShader;
 
 const init = () => {
+    // Base data
     window.starfieldLoaded = false;
     window.pointsLoaded = false;
     window.triangulationLoaded = false;
+    window.voidLoaded = false;
+    window.edgesLoaded = false;
     window.points = [];
+    window.drawing_points = [];
+    window.edges = [];
+    window.edgesInner = [];
     window.delaunay = new Delaunator(window.points);
     pointShader = false;
 
+    // Set void disabled to avoid errors
+    document.getElementById("vis-void").setAttribute("disabled", "");
+    document.getElementById("vis-void").checked = false;
+
+    // Setup three.js
     container = document.getElementById("threeJS");
 
     camera = new Camera();
@@ -65,17 +77,9 @@ const init = () => {
         },
     };
 
-    // Draw stars
-    // materialPoints = new ShaderMaterial({
-    //     uniforms: uniforms,
-    //     vertexShader: vsSource,
-    //     fragmentShader: fsSourcePoints,
-    // });
-
     renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    // renderer.setClearColor(0x000000);
 
     container.appendChild(renderer.domElement);
 
@@ -155,17 +159,16 @@ const render = () => {
     if (visPoints) {
         if (!window.pointsLoaded) {
             window.pointsLoaded = true;
-            const vertices = new Float32Array(window.points);
 
             // DRAW POINTS
             const geometryPoint = new BufferGeometry();
             geometryPoint.setAttribute(
                 "position",
-                new Float32BufferAttribute(vertices, 2)
+                new Float32BufferAttribute(window.drawing_points, 3)
             );
             const materialPoints = new PointsMaterial({
                 color: 0xffffff,
-                size: 4,
+                // size: 4,
             });
             const meshPoints = new Points(geometryPoint, materialPoints);
             meshPoints.name = "points";
@@ -185,9 +188,9 @@ const render = () => {
     if (visTriang) {
         if (!window.triangulationLoaded) {
             window.triangulationLoaded = true;
-            const vertices = new Float32Array(window.points);
+
             // Calculate triangulation
-            window.delaunay = new Delaunator(vertices);
+            window.delaunay = new Delaunator(window.points);
             var meshIndex = []; // delaunay index => three.js index
             for (let i = 0; i < window.delaunay.triangles.length; i++) {
                 meshIndex.push(window.delaunay.triangles[i]);
@@ -197,7 +200,7 @@ const render = () => {
             const geometryDelaunay = new BufferGeometry();
             geometryDelaunay.setAttribute(
                 "position",
-                new Float32BufferAttribute(vertices, 2)
+                new Float32BufferAttribute(window.drawing_points, 3)
             );
             geometryDelaunay.setIndex(meshIndex);
             const materialDelaunay = new MeshBasicMaterial({
@@ -205,17 +208,246 @@ const render = () => {
                 side: DoubleSide,
                 wireframe: true,
             });
-            // geometryDelaunay.boundingSphere.radius = 1;
+
             const meshDelaunay = new Mesh(geometryDelaunay, materialDelaunay);
-            meshDelaunay.renderOrder = 2;
+            meshDelaunay.renderOrder = 5;
             meshDelaunay.name = "triangulation";
+            meshDelaunay.geometry.computeBoundingSphere();
             scene.add(meshDelaunay);
+
+            if (!window.edgesLoaded) {
+                generateEdges();
+            }
         }
     } else {
         if (window.triangulationLoaded) {
             window.triangulationLoaded = false;
             const mesh = scene.getObjectByName("triangulation");
             scene.remove(mesh);
+        }
+    }
+
+    // Void
+    const visVoid = document.getElementById("vis-void").checked;
+    if (visVoid) {
+        if (!window.voidLoaded && window.edgesLoaded) {
+            window.voidLoaded = true;
+
+            // console.log("////////DATOS////////");
+            // console.log("point", window.points);
+            // console.log("triangulation", window.delaunay.triangles);
+            // console.log("edge", window.edges);
+
+            //  Classification
+            var sets = []; // Sets of possibles voids
+            var sets_idx = []; // Sets of possibles voids for drawing
+            var marked_triangules = []; // Array of booleans
+            var marked_triangules_count = 0;
+
+            // Optimization (?)
+            var valid_edges = window.edgesInner.valueOf();
+
+            // Search sets (ALL -> check for alternative)
+            while (
+                marked_triangules.length <
+                window.delaunay.triangles.length / 3
+            ) {
+                var triangle_set = [];
+                var triangle_set_idx = [];
+                // Search longes edge (unmarked triangules)
+                for (var le_idx = 0; le_idx < window.edges.length; le_idx++) {
+                    var lefound = false;
+                    var le = window.edges[window.edges.length - 1 - le_idx];
+                    if (!marked_triangules.includes(le[3])) {
+                        triangle_set.push(le[3]);
+                        var point_idx_1 = window.delaunay.triangles[le[3]];
+                        var point_idx_2 = window.delaunay.triangles[le[3] + 1];
+                        var point_idx_3 = window.delaunay.triangles[le[3] + 2];
+                        triangle_set_idx.push(
+                            point_idx_1,
+                            point_idx_2,
+                            point_idx_3
+                        );
+                        marked_triangules.push(le[3]);
+                        lefound = true;
+                    }
+                    if (le[4]) {
+                        if (!marked_triangules.includes(le[4])) {
+                            triangle_set.push(le[4]);
+                            var point_idx_1 = window.delaunay.triangles[le[4]];
+                            var point_idx_2 =
+                                window.delaunay.triangles[le[4] + 1];
+                            var point_idx_3 =
+                                window.delaunay.triangles[le[4] + 2];
+                            triangle_set_idx.push(
+                                point_idx_1,
+                                point_idx_2,
+                                point_idx_3
+                            );
+                            marked_triangules.push(le[4]);
+                            lefound = true;
+                        }
+                    }
+                    if (lefound) break;
+                }
+
+                // ERROR
+                if (triangle_set.length === 0) {
+                    console.log("ERROR");
+                    break;
+                }
+
+                // Search adjacent triangules
+                var found = true;
+                while (found) {
+                    found = false;
+                    for (var e = 0; e < valid_edges.length; e++) {
+                        var t1 = valid_edges[e][3];
+                        var t2 = valid_edges[e][4];
+                        if (!t2) {
+                            console.log("Impossible case");
+                            continue;
+                        }
+                        var t1_inc = triangle_set.includes(t1);
+                        var t2_inc = triangle_set.includes(t2);
+                        if (!t1_inc && !t2_inc) continue;
+
+                        if (t1_inc && t2_inc) {
+                            console.log("TEST");
+                            valid_edges.splice(e, 1);
+                            e--;
+                            continue;
+                        }
+                        // If t1 is not in the system, check longest edge
+                        if (!t1_inc) {
+                            if (marked_triangules.includes(t1)) continue;
+                            var p1 = window.delaunay.triangles[t1] * 2;
+                            var p2 = window.delaunay.triangles[t1 + 1] * 2;
+                            var p3 = window.delaunay.triangles[t1 + 2] * 2;
+                            var dmax = Math.max(
+                                Math.pow(
+                                    window.points[p1] - window.points[p2],
+                                    2
+                                ) +
+                                    Math.pow(
+                                        window.points[p1 + 1] -
+                                            window.points[p2 + 1],
+                                        2
+                                    ),
+                                Math.pow(
+                                    window.points[p1] - window.points[p3],
+                                    2
+                                ) +
+                                    Math.pow(
+                                        window.points[p1 + 1] -
+                                            window.points[p3 + 1],
+                                        2
+                                    ),
+                                Math.pow(
+                                    window.points[p2] - window.points[p3],
+                                    2
+                                ) +
+                                    Math.pow(
+                                        window.points[p2 + 1] -
+                                            window.points[p3 + 1],
+                                        2
+                                    )
+                            );
+                            if (dmax == valid_edges[e][2]) {
+                                found = true;
+                                triangle_set.push(t1);
+                                marked_triangules.push(t1);
+                                triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
+                                valid_edges.splice(e, 1);
+                                e--;
+                            }
+                        } else {
+                            if (marked_triangules.includes(t2)) continue;
+                            var p1 = window.delaunay.triangles[t2] * 2;
+                            var p2 = window.delaunay.triangles[t2 + 1] * 2;
+                            var p3 = window.delaunay.triangles[t2 + 2] * 2;
+                            var dmax = Math.max(
+                                Math.pow(
+                                    window.points[p1] - window.points[p2],
+                                    2
+                                ) +
+                                    Math.pow(
+                                        window.points[p1 + 1] -
+                                            window.points[p2 + 1],
+                                        2
+                                    ),
+                                Math.pow(
+                                    window.points[p1] - window.points[p3],
+                                    2
+                                ) +
+                                    Math.pow(
+                                        window.points[p1 + 1] -
+                                            window.points[p3 + 1],
+                                        2
+                                    ),
+                                Math.pow(
+                                    window.points[p2] - window.points[p3],
+                                    2
+                                ) +
+                                    Math.pow(
+                                        window.points[p2 + 1] -
+                                            window.points[p3 + 1],
+                                        2
+                                    )
+                            );
+                            if (dmax == valid_edges[e][2]) {
+                                found = true;
+                                triangle_set.push(t2);
+                                marked_triangules.push(t2);
+                                triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
+                                valid_edges.splice(e, 1);
+                                e--;
+                            }
+                        }
+                    }
+                }
+                sets.push(triangle_set);
+                sets_idx.push(triangle_set_idx);
+            }
+
+            if (sets.length === 0) {
+                console.log("ERROR FATAL");
+                renderer.render(scene, camera);
+                return;
+            }
+            console.log("SETS: ", sets);
+            // DRAW VOID
+            for (var i = 0; i < Math.min(10, sets_idx.length); i++) {
+                const geometryVoid = new BufferGeometry();
+                geometryVoid.setAttribute(
+                    "position",
+                    new Float32BufferAttribute(window.drawing_points, 3)
+                );
+                // geometryVoid.setIndex([point_idx_1, point_idx_2, point_idx_3]);
+
+                geometryVoid.setIndex(sets_idx[i]);
+                const materialVoid = new MeshBasicMaterial({
+                    color: new Color(1 / (i + 1), 1 / (i + 1), 1 / (i + 1)),
+                    side: DoubleSide,
+                    wireframe: false,
+                });
+                const meshVoid = new Mesh(geometryVoid, materialVoid);
+                meshVoid.renderOrder = 4;
+                meshVoid.name = "void" + i;
+                scene.add(meshVoid);
+            }
+        }
+    } else {
+        if (window.voidLoaded) {
+            window.voidLoaded = false;
+            var voids_names = [];
+            for (var i = 0; i < scene.children.length; i++) {
+                if (scene.children[i].name.includes("void"))
+                    voids_names.push(scene.children[i].name);
+            }
+            for (var i = 0; i < voids_names.length; i++) {
+                scene.remove(scene.getObjectByName(voids_names[i]));
+            }
         }
     }
 

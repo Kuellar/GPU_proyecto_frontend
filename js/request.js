@@ -38,11 +38,20 @@ export const skyRequest = (query, ra, dec, amp) => {
             }
             star_data.forEach((star) => {
                 window.points.push(((star.ra - (ra - amp / 2)) * 2) / amp - 1);
+                window.drawing_points.push(
+                    ((star.ra - (ra - amp / 2)) * 2) / amp - 1
+                );
                 window.points.push(
                     ((star.dec - (dec - amp / 2)) * 2) / amp - 1
                 );
+                window.drawing_points.push(
+                    ((star.dec - (dec - amp / 2)) * 2) / amp - 1
+                );
+                window.drawing_points.push(0);
             });
+            window.points = new Float32Array(window.points); // CHECK
+            window.drawing_points = new Float32Array(window.drawing_points); // CHECK
             window.amp = amp;
-            console.log(window.points);
+            // console.log(window.points);
         });
 };
