@@ -1,5 +1,5 @@
 {
-  "name": "gpu_proyecto_frontend",
+  "name": "voidseeker",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -8,9 +8,9 @@
     "css-watch": "npm run css-build -- --watch",
     "start": "parcel ./src/index.html",
     "prebuild-dev": "shx rm -rf dist/*",
-    "build-dev": "parcel build ./src/index.html --no-minify --public-url /GPU_proyecto_frontend/",
+    "build-dev": "parcel build ./src/index.html --no-minify --public-url /voidseeker/",
     "prebuild": "shx rm -rf dist/*",
-    "build": "parcel build ./src/index.html --public-url /GPU_proyecto_frontend/",
+    "build": "parcel build ./src/index.html --public-url /voidseeker/",
     "push-gh-pages": "push-dir --dir=dist --branch=gh-pages --cleanup --verbose"
   },
   "devDependencies": {
@@ -21,15 +21,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kuellar/GPU_proyecto_frontend.git"
+    "url": "git+https://github.com/Kuellar/voidseeker.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Kuellar/GPU_proyecto_frontend/issues"
+    "url": "https://github.com/Kuellar/voidseeker/issues"
   },
-  "homepage": "https://github.com/Kuellar/GPU_proyecto_frontend#readme",
+  "homepage": "https://github.com/Kuellar/voidseeker#readme",
   "dependencies": {
     "bulma": "^0.9.4",
     "bulma-extensions": "^6.2.7",
