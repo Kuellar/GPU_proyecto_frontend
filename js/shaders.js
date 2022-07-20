@@ -7,10 +7,16 @@ void main() {
 
 export const vsSource2 = `
 varying vec2 vPos;
+varying float vG;
+varying float vI;
+attribute float aG;
+attribute float aI;
 void main() {
 	gl_PointSize = 100.0;
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 ) * vec4(1.,1.,0,1.);
     vPos = position.xy;
+	vG = aG;
+	vI = aI;
 }
 `;
 
@@ -113,6 +119,8 @@ uniform vec2 u_mouse;
 uniform float u_time;
 uniform float u_stars_amp;
 varying vec2 vPos;
+varying float vG;
+varying float vI;
 
 mat2 Rotation(float angle) {
 	float s=sin(angle), c=cos(angle);
@@ -152,7 +160,7 @@ void main() {
 	vec3 col = vec3(0,0,0);
 
 	// Distance to center
-	float random = Hash21(pos);
+	float random = Hash21(vec2(vG,vI));
 	float flare = 0.;
 	if (random>.6) flare = 1.;
 	float star = Star(uv-pos, flare);

@@ -18,6 +18,8 @@ const fetch_data = () => {
     window.voidSetsIdx = [];
     window.triangEdge = [];
     window.setArea = [];
+    window.gPoints = [];
+    window.iPoints = [];
     document.getElementById("est-points").textContent = 0;
     document.getElementById("est-triang").textContent = 0;
     document.getElementById("est-edges").textContent = 0;

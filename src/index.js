@@ -31,6 +31,8 @@ const init = () => {
     window.edgesLoaded = false;
     window.points = [];
     window.drawing_points = [];
+    window.gPoints = [];
+    window.iPoints = [];
     window.edges = [];
     window.edgesInner = [];
     window.delaunay = new Delaunator(window.points);
@@ -41,6 +43,7 @@ const init = () => {
     window.amp = 0;
     window.ra = 180;
     window.dec = 0;
+    window.forwardTime = true;
 
     // Set void disabled to avoid errors
     document.getElementById("vis-void").setAttribute("disabled", "");
@@ -101,8 +104,19 @@ const animate = () => {
 };
 
 const render = () => {
-    // Update time
-    base_uniforms.u_time.value += clock.getDelta();
+    // Update time - avoid infinity time
+    if (window.forwardTime && base_uniforms.u_time.value < 15)
+        base_uniforms.u_time.value += clock.getDelta();
+    if (window.forwardTime && base_uniforms.u_time.value >= 15) {
+        window.forwardTime = !window.forwardTime;
+        base_uniforms.u_time.value -= clock.getDelta();
+    }
+    if (!window.forwardTime && base_uniforms.u_time.value > 1)
+        base_uniforms.u_time.value -= clock.getDelta();
+    if (!window.forwardTime && base_uniforms.u_time.value <= 1) {
+        window.forwardTime = !window.forwardTime;
+        base_uniforms.u_time.value += clock.getDelta();
+    }
 
     // NOT DATA
     if (window.points.length == 0) {
@@ -154,6 +168,14 @@ const render = () => {
             geometry.setAttribute(
                 "position",
                 new Float32BufferAttribute(window.drawing_points, 3)
+            );
+            geometry.setAttribute(
+                "aG",
+                new Float32BufferAttribute(window.gPoints, 1)
+            );
+            geometry.setAttribute(
+                "aI",
+                new Float32BufferAttribute(window.iPoints, 1)
             );
 
             starfield_uniforms = {

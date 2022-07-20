@@ -53,6 +53,8 @@ export const skyRequest = (query, ra, dec, amp, rect) => {
                     ((star.dec - (dec - amp / 2)) * 2) / amp - 1
                 );
                 window.drawing_points.push(0);
+                window.gPoints.push(star.g);
+                window.iPoints.push(star.i);
             });
             window.points = new Float32Array(window.points); // CHECK
             window.drawing_points = new Float32Array(window.drawing_points); // CHECK
