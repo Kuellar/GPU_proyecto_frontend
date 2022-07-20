@@ -58,6 +58,11 @@ const fetch_data = () => {
     window.ra = ra;
     window.dec = dec;
     window.amp = amp;
+    document.getElementById("s-ra").textContent = ra.toString().slice(0, 10);
+    document.getElementById("s-dec").textContent = dec.toString().slice(0, 10);
+    document.getElementById("s-amp").textContent = (amp * 60)
+        .toString()
+        .slice(0, 10);
 
     var query;
     if (type) {
@@ -101,3 +106,26 @@ const change_menu = () => {
     }
 };
 document.getElementById("alternator").addEventListener("click", change_menu);
+
+/**
+ * Action taken clicking threejs canvas
+ */
+const update_coords = () => {
+    if (window.amp === 0) return;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const size = Math.min(h, w);
+    const off = Math.max(w - h, 0) / 2;
+    const mx =
+        ((window.event.clientX - off) * window.amp) / size -
+        window.amp / 2 +
+        window.ra;
+    const my = -(
+        (window.event.clientY * window.amp) / size -
+        window.amp / 2 -
+        window.dec
+    );
+    document.getElementById("ra").value = mx;
+    document.getElementById("dec").value = my;
+};
+document.getElementById("threeJS").addEventListener("click", update_coords);

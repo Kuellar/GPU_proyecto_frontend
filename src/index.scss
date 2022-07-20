@@ -236,11 +236,12 @@ html, body {
 }
 
 .waiting-dots-hidden {
-    animation-name: waiting-dots-hide;
-    animation-duration: 0.3s;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
-    opacity: 0;
+    // animation-name: waiting-dots-hide;
+    // animation-duration: 0.3s;
+    // animation-timing-function: linear;
+    // animation-fill-mode: forwards;
+    // opacity: 0;
+    display: none;
 }
 
 .waiting-dots-not-hidden {

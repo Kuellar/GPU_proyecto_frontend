@@ -4,7 +4,6 @@ import {
     Clock,
     ShaderMaterial,
     Mesh,
-    PlaneBufferGeometry,
     BufferGeometry,
     Color,
     Scene,
@@ -16,16 +15,12 @@ import {
     Points,
     Float32BufferAttribute,
     PointsMaterial,
-    LineSegments,
-    LineBasicMaterial,
     DoubleSide,
 } from "three";
 import Delaunator from "delaunator";
 
 var container, camera, scene, renderer, clock, loader;
 var base_uniforms, starfield_uniforms;
-
-var materialStars, materialPoints, pointShader;
 
 const init = () => {
     // Base data
@@ -43,7 +38,9 @@ const init = () => {
     window.voidSetsIdx = [];
     window.triangEdge = [];
     window.setArea = [];
-    pointShader = false;
+    window.amp = 0;
+    window.ra = 180;
+    window.dec = 0;
 
     // Set void disabled to avoid errors
     document.getElementById("vis-void").setAttribute("disabled", "");
