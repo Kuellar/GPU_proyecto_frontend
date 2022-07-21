@@ -139,25 +139,27 @@ export const generateVoid = () => {
         var area = 0;
         // Search longes edge (unmarked triangules)
         for (var le_idx = 0; le_idx < window.edges.length; le_idx++) {
-            var lefound = false;
             var le = window.edges[window.edges.length - 1 - le_idx];
-            if (!marked_triangules[le[3]]) {
-                triangle_set.push(le[3]);
-                var point_idx_1 = window.delaunay.triangles[le[3]];
-                var point_idx_2 = window.delaunay.triangles[le[3] + 1];
-                var point_idx_3 = window.delaunay.triangles[le[3] + 2];
-                triangle_set_idx.push(point_idx_1, point_idx_2, point_idx_3);
-                marked_triangules[le[3]] = true;
-                marked_triangules_count++;
-                lefound = true;
-                area += areaCalc(
-                    window.edges[window.triangEdge[le[3] / 3][0]][2],
-                    window.edges[window.triangEdge[le[3] / 3][1]][2],
-                    window.edges[window.triangEdge[le[3] / 3][2]][2]
-                );
-            }
             if (le[4]) {
-                if (!marked_triangules[le[4]]) {
+                if (!marked_triangules[le[3]] && !marked_triangules[le[4]]) {
+                    // le[3]
+                    triangle_set.push(le[3]);
+                    var point_idx_1 = window.delaunay.triangles[le[3]];
+                    var point_idx_2 = window.delaunay.triangles[le[3] + 1];
+                    var point_idx_3 = window.delaunay.triangles[le[3] + 2];
+                    triangle_set_idx.push(
+                        point_idx_1,
+                        point_idx_2,
+                        point_idx_3
+                    );
+                    marked_triangules[le[3]] = true;
+                    marked_triangules_count++;
+                    area += areaCalc(
+                        window.edges[window.triangEdge[le[3] / 3][0]][2],
+                        window.edges[window.triangEdge[le[3] / 3][1]][2],
+                        window.edges[window.triangEdge[le[3] / 3][2]][2]
+                    );
+                    // le[4]
                     triangle_set.push(le[4]);
                     var point_idx_1 = window.delaunay.triangles[le[4]];
                     var point_idx_2 = window.delaunay.triangles[le[4] + 1];
@@ -169,20 +171,19 @@ export const generateVoid = () => {
                     );
                     marked_triangules[le[4]] = true;
                     marked_triangules_count++;
-                    lefound = true;
                     area += areaCalc(
                         window.edges[window.triangEdge[le[4] / 3][0]][2],
                         window.edges[window.triangEdge[le[4] / 3][1]][2],
                         window.edges[window.triangEdge[le[4] / 3][2]][2]
                     );
+                    break;
                 }
             }
-            if (lefound) break;
         }
 
         // ERROR
         if (triangle_set.length === 0) {
-            console.log("ERROR");
+            // console.log("");
             break;
         }
 
