@@ -1,3 +1,10 @@
+/*
+ *   SKYSERVER API and Database
+ *   Documentation: http://skyserver.sdss.org/dr16/en/help/docs/api.aspx
+ *   TEST SQL: http://skyserver.sdss.org/dr17/SearchTools/sql
+ *   TABLES: http://skyserver.sdss.org/dr17/MoreTools/browser
+ *   Recomendation: Try first the api, the response return the sql search
+ */
 export const skyRequest = (query, ra, dec, amp, rect) => {
     const data = {
         ...query,

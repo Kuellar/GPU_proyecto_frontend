@@ -3,7 +3,7 @@ import { skyRequest } from "./request.js";
 /**
  * Action taken by pressing "Search".
  */
-const fetch_data = () => {
+export const fetchData = () => {
     // Set base data empty
     window.points = [];
     window.drawing_points = [];
@@ -84,12 +84,12 @@ const fetch_data = () => {
 
     skyRequest(query, ra, dec, amp, type);
 };
-document.getElementById("search").addEventListener("click", fetch_data);
+document.getElementById("search").addEventListener("click", fetchData);
 
 /**
  * Action taken by pressing toggler button.
  */
-const change_menu = () => {
+const changeMenu = () => {
     const menu = document.getElementById("menu-section");
     const alternatorButton = document.getElementById("alternator");
     const alternatorIcon = document.getElementById("alternator-icon");
@@ -107,12 +107,12 @@ const change_menu = () => {
         alternatorButton.classList.toggle("alternator-left");
     }
 };
-document.getElementById("alternator").addEventListener("click", change_menu);
+document.getElementById("alternator").addEventListener("click", changeMenu);
 
 /**
  * Action taken clicking threejs canvas
  */
-const update_coords = () => {
+const updateCoords = () => {
     if (window.amp === 0) return;
     const w = window.innerWidth;
     const h = window.innerHeight;
@@ -130,4 +130,4 @@ const update_coords = () => {
     document.getElementById("ra").value = mx;
     document.getElementById("dec").value = my;
 };
-document.getElementById("threeJS").addEventListener("click", update_coords);
+document.getElementById("threeJS").addEventListener("click", updateCoords);

@@ -1,23 +1,24 @@
-import { vsSource2, fsSourceSingleStar } from "../js/shaders.js";
-import { generateEdges, generateVoid } from "../js/utils.js";
+import Delaunator from "delaunator";
 import {
-    Clock,
-    ShaderMaterial,
-    Mesh,
     BufferGeometry,
-    Color,
-    Scene,
-    WebGLRenderer,
-    Vector2,
     Camera,
-    TextureLoader,
+    Clock,
+    Color,
+    DoubleSide,
+    Float32BufferAttribute,
+    Mesh,
     MeshBasicMaterial,
     Points,
-    Float32BufferAttribute,
     PointsMaterial,
-    DoubleSide,
+    Scene,
+    ShaderMaterial,
+    TextureLoader,
+    Vector2,
+    WebGLRenderer,
 } from "three";
-import Delaunator from "delaunator";
+import { fsSourceStar, vsSourceStar } from "../js/shaders.js";
+import { generateEdges, generateVoid } from "../js/utils.js";
+import { fetchData } from "../js/actions.js";
 
 var container, camera, scene, renderer, clock, loader;
 var base_uniforms, starfield_uniforms;
@@ -54,11 +55,6 @@ const init = () => {
 
     camera = new Camera();
     camera.position.z = 1;
-    /*
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 51200);
-    camera.position.set(-2048, 2048, -2048);
-    lastCameraPosition.set(camera.position.x, camera.position.y, camera.position.z);
-    */
 
     scene = new Scene();
     clock = new Clock();
@@ -135,34 +131,6 @@ const render = () => {
         // First load
         if (!window.starfieldLoaded) {
             window.starfieldLoaded = true;
-            // STARFIELD V1
-            // starfield_uniforms = {
-            //     ...base_uniforms,
-            //     u_stars_amp: {
-            //         type: "float",
-            //         value: window.amp,
-            //     },
-            //     u_stars_total: {
-            //         type: "int",
-            //         value: window.points.length / 2,
-            //     },
-            //     u_stars_pos: {
-            //         type: "float",
-            //         value: window.points,
-            //     },
-            // };
-            // var geometry = new PlaneBufferGeometry(2, 2);
-            // materialStars = new ShaderMaterial({
-            //     uniforms: starfield_uniforms,
-            //     vertexShader: vsSource,
-            //     fragmentShader: fsSourceStars,
-            // });
-            // const mesh = new Mesh(geometry, materialStars);
-            // mesh.name = "starfield";
-            // mesh.renderOrder = 0;
-            // scene.add(mesh);
-
-            //////////////////////////////
             // DRAW STARS
             const geometry = new BufferGeometry();
             geometry.setAttribute(
@@ -187,8 +155,8 @@ const render = () => {
             };
             const materialPoints = new ShaderMaterial({
                 uniforms: starfield_uniforms,
-                vertexShader: vsSource2,
-                fragmentShader: fsSourceSingleStar,
+                vertexShader: vsSourceStar,
+                fragmentShader: fsSourceStar,
                 transparent: true,
                 depthWrite: false,
             });
@@ -336,3 +304,4 @@ const render = () => {
 
 window.onload = init();
 window.onload = animate();
+window.onload = fetchData();
