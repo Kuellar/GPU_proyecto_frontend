@@ -1,4 +1,3 @@
-import Delaunator from "delaunator";
 import {
     BufferGeometry,
     Camera,
@@ -30,20 +29,10 @@ const init = () => {
     window.triangulationLoaded = false;
     window.voidLoaded = false;
     window.edgesLoaded = false;
-    window.points = [];
-    window.drawing_points = [];
-    window.gPoints = [];
-    window.iPoints = [];
-    window.edges = [];
-    window.edgesInner = [];
-    window.delaunay = new Delaunator(window.points);
-    window.voidSets = [];
-    window.voidSetsIdx = [];
-    window.triangEdge = [];
-    window.setArea = [];
     window.amp = 0;
     window.ra = 180;
     window.dec = 0;
+
     window.forwardTime = true;
 
     // Set void disabled to avoid errors
@@ -115,7 +104,7 @@ const render = () => {
     }
 
     // NOT DATA
-    if (window.points.length == 0) {
+    if (!window.voidseeker) {
         scene.clear();
         return;
     }
@@ -128,22 +117,21 @@ const render = () => {
     // Starfield
     const visStars = document.getElementById("vis-stars").checked;
     if (visStars) {
-        // First load
         if (!window.starfieldLoaded) {
             window.starfieldLoaded = true;
             // DRAW STARS
             const geometry = new BufferGeometry();
             geometry.setAttribute(
                 "position",
-                new Float32BufferAttribute(window.drawing_points, 3)
+                new Float32BufferAttribute(window.voidseeker.drawingPoints, 3)
             );
             geometry.setAttribute(
                 "aG",
-                new Float32BufferAttribute(window.gPoints, 1)
+                new Float32BufferAttribute(window.voidseeker.gPoints, 1)
             );
             geometry.setAttribute(
                 "aI",
-                new Float32BufferAttribute(window.iPoints, 1)
+                new Float32BufferAttribute(window.voidseeker.iPoints, 1)
             );
 
             starfield_uniforms = {
@@ -183,7 +171,7 @@ const render = () => {
             const geometryPoint = new BufferGeometry();
             geometryPoint.setAttribute(
                 "position",
-                new Float32BufferAttribute(window.drawing_points, 3)
+                new Float32BufferAttribute(window.voidseeker.drawingPoints, 3)
             );
             const materialPoints = new PointsMaterial({
                 color: 0xffffff,
@@ -208,22 +196,19 @@ const render = () => {
         if (!window.triangulationLoaded) {
             window.triangulationLoaded = true;
 
-            // Calculate triangulation
-            window.delaunay = new Delaunator(window.points);
-            document.getElementById("est-triang").textContent =
-                window.delaunay.triangles.length / 3;
-            var meshIndex = []; // delaunay index => three.js index
-            for (let i = 0; i < window.delaunay.triangles.length; i++) {
-                meshIndex.push(window.delaunay.triangles[i]);
+            // Calculate triangulation if neccesary
+            if (!window.voidseeker.triangles) {
+                window.voidseeker.setTriangulation();
             }
 
             // DRAW TRIANGULATION
             const geometryDelaunay = new BufferGeometry();
             geometryDelaunay.setAttribute(
                 "position",
-                new Float32BufferAttribute(window.drawing_points, 3)
+                new Float32BufferAttribute(window.voidseeker.drawingPoints, 3)
             );
-            geometryDelaunay.setIndex(meshIndex);
+
+            geometryDelaunay.setIndex(window.voidseeker.triangles);
             const materialDelaunay = new MeshBasicMaterial({
                 color: 0xffffff,
                 side: DoubleSide,
@@ -233,11 +218,10 @@ const render = () => {
             const meshDelaunay = new Mesh(geometryDelaunay, materialDelaunay);
             meshDelaunay.renderOrder = 5;
             meshDelaunay.name = "triangulation";
-            meshDelaunay.geometry.computeBoundingSphere();
             scene.add(meshDelaunay);
 
-            if (!window.edgesLoaded) {
-                generateEdges();
+            if (!window.voidseeker.edges) {
+                window.voidseeker.setEdges();
             }
         }
     } else {
@@ -251,28 +235,34 @@ const render = () => {
     // Void
     const visVoid = document.getElementById("vis-void").checked;
     if (visVoid) {
-        if (!window.voidLoaded && window.edgesLoaded) {
+        if (!window.voidLoaded && window.voidseeker.edges) {
             window.voidLoaded = true;
 
-            if (window.voidSets.length === 0) {
-                generateVoid();
+            if (!window.voidseeker.voidSets) {
+                window.voidseeker.setVoids();
             }
 
             // DRAW VOID
-            var setAreaCopy = [...window.setArea];
-            for (var i = 0; i < Math.min(10, window.voidSetsIdx.length); i++) {
-                var idxBigger = window.setArea.indexOf(
+            var setAreaCopy = [...window.voidseeker.setArea];
+            for (
+                var i = 0;
+                i < Math.min(10, window.voidseeker.voidSetsIdx.length);
+                i++
+            ) {
+                var idxBigger = window.voidseeker.setArea.indexOf(
                     Math.max(...setAreaCopy)
                 );
                 setAreaCopy[idxBigger] = 0;
                 const geometryVoid = new BufferGeometry();
                 geometryVoid.setAttribute(
                     "position",
-                    new Float32BufferAttribute(window.drawing_points, 3)
+                    new Float32BufferAttribute(
+                        window.voidseeker.drawingPoints,
+                        3
+                    )
                 );
-                // geometryVoid.setIndex([point_idx_1, point_idx_2, point_idx_3]);
 
-                geometryVoid.setIndex(window.voidSetsIdx[idxBigger]);
+                geometryVoid.setIndex(window.voidseeker.voidSetsIdx[idxBigger]);
                 const materialVoid = new MeshBasicMaterial({
                     color: new Color(1 / (i + 1), 1 / (i + 1), 1 / (i + 1)),
                     side: DoubleSide,

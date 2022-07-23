@@ -5,21 +5,12 @@ import { skyRequest } from "./request.js";
  */
 export const fetchData = () => {
     // Set base data empty
-    window.points = [];
-    window.drawing_points = [];
+    delete window.voidseeker;
     window.starfieldLoaded = false;
     window.pointsLoaded = false;
     window.triangulationLoaded = false;
     window.voidLoaded = false;
     window.edgesLoaded = false;
-    window.edges = [];
-    window.edgesInner = [];
-    window.voidSets = [];
-    window.voidSetsIdx = [];
-    window.triangEdge = [];
-    window.setArea = [];
-    window.gPoints = [];
-    window.iPoints = [];
     document.getElementById("est-points").textContent = 0;
     document.getElementById("est-triang").textContent = 0;
     document.getElementById("est-edges").textContent = 0;
