@@ -179,9 +179,6 @@ export class Voidseeker {
         var marked_triangules = Array(this.triangles.length / 3); // Array of booleans
         var marked_triangules_count = 0;
 
-        // Optimization (?)
-        var valid_edges = this.edgesInner.valueOf();
-
         // Search sets
         while (marked_triangules_count < this.triangles.length / 3) {
             var triangle_set = [];
@@ -189,7 +186,7 @@ export class Voidseeker {
             var area = 0;
             var le_idx = 0; // longest edge
             // Search longest edge (unmarked triangules -> O(n))
-            for (var idx = 0; idx < this.edges.length; idx++) {
+            for (var idx = le_idx; idx < this.edges.length; idx++) {
                 var le = this.edges[this.edges.length - 1 - idx];
                 if (le[4]) {
                     if (
@@ -242,7 +239,7 @@ export class Voidseeker {
                 break;
             }
 
-            // Search adjacent triangules
+            // Search adjacent triangules (search every neighboard of each triangle included in triagle_set... is horrible)
             var found = true;
             while (found) {
                 found = false;
@@ -265,6 +262,7 @@ export class Voidseeker {
                             found = true;
                             triangle_set.push(neighbor1Idx);
                             marked_triangules[neighbor1Idx] = true;
+                            marked_triangules_count++;
                             triangle_set_idx.push(
                                 this.triangles[neighbor1Idx],
                                 this.triangles[neighbor1Idx + 1],
@@ -293,6 +291,7 @@ export class Voidseeker {
                             found = true;
                             triangle_set.push(neighbor2Idx);
                             marked_triangules[neighbor2Idx] = true;
+                            marked_triangules_count++;
                             triangle_set_idx.push(
                                 this.triangles[neighbor2Idx],
                                 this.triangles[neighbor2Idx + 1],
@@ -305,7 +304,7 @@ export class Voidseeker {
                             );
                         }
                     }
-                    // Edge 3
+                    // Edge 3 -> Immposible case?
                     var ed3 = this.edges[triang[2]];
                     var neighbor3Idx = ed3[3] === triangIdx ? ed3[4] : ed3[3];
                     if (neighbor3Idx && !marked_triangules[neighbor3Idx]) {
@@ -318,9 +317,11 @@ export class Voidseeker {
                                 this.edges[neighbor3TriangEdges[2]][2]
                             ) === ed3[2]
                         ) {
+                            console.log("Immposible case?");
                             found = true;
                             triangle_set.push(neighbor3Idx);
                             marked_triangules[neighbor3Idx] = true;
+                            marked_triangules_count++;
                             triangle_set_idx.push(
                                 this.triangles[neighbor3Idx],
                                 this.triangles[neighbor3Idx + 1],

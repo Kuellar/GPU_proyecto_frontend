@@ -154,11 +154,9 @@ const render = () => {
             scene.add(meshPoints);
         }
     } else {
-        if (window.starfieldLoaded) {
-            window.starfieldLoaded = false;
-            const mesh = scene.getObjectByName("starfield");
-            scene.remove(mesh);
-        }
+        window.starfieldLoaded = false;
+        const mesh = scene.getObjectByName("starfield");
+        scene.remove(mesh);
     }
 
     // Points
@@ -183,11 +181,9 @@ const render = () => {
             scene.add(meshPoints);
         }
     } else {
-        if (window.pointsLoaded) {
-            window.pointsLoaded = false;
-            const mesh = scene.getObjectByName("points");
-            scene.remove(mesh);
-        }
+        window.pointsLoaded = false;
+        const mesh = scene.getObjectByName("points");
+        scene.remove(mesh);
     }
 
     // Triangulation
@@ -273,16 +269,14 @@ const render = () => {
             }
         }
     } else {
-        if (window.voidLoaded) {
-            window.voidLoaded = false;
-            var voids_names = [];
-            for (var i = 0; i < scene.children.length; i++) {
-                if (scene.children[i].name.includes("void"))
-                    voids_names.push(scene.children[i].name);
-            }
-            for (var i = 0; i < voids_names.length; i++) {
-                scene.remove(scene.getObjectByName(voids_names[i]));
-            }
+        window.voidLoaded = false;
+        var voids_names = [];
+        for (var i = 0; i < scene.children.length; i++) {
+            if (scene.children[i].name.includes("void"))
+                voids_names.push(scene.children[i].name);
+        }
+        for (var i = 0; i < voids_names.length; i++) {
+            scene.remove(scene.getObjectByName(voids_names[i]));
         }
     }
 
