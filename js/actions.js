@@ -4,21 +4,17 @@ import { skyRequest } from "./request.js";
  * Action taken by pressing "Search".
  */
 export const fetchData = () => {
+    // Disable void
+    document.getElementById("vis-void").setAttribute("disabled", "");
+    document.getElementById("vis-void").checked = false;
+
     // Set base data empty
     delete window.voidseeker;
-    window.starfieldLoaded = false;
-    window.pointsLoaded = false;
-    window.triangulationLoaded = false;
-    window.voidLoaded = false;
-    window.edgesLoaded = false;
+
     document.getElementById("est-points").textContent = 0;
     document.getElementById("est-triang").textContent = 0;
     document.getElementById("est-edges").textContent = 0;
     document.getElementById("est-edges-inner").textContent = 0;
-
-    // Disable void
-    document.getElementById("vis-void").setAttribute("disabled", "");
-    document.getElementById("vis-void").checked = false;
 
     console.log("Fetching data");
     // Set waiting gif
@@ -47,7 +43,6 @@ export const fetchData = () => {
         return;
     }
 
-    window.data = false;
     window.ra = ra;
     window.dec = dec;
     window.amp = amp;

@@ -52,9 +52,11 @@ export const skyRequest = (query, ra, dec, amp, rect) => {
             );
 
             // SET GLOBAL
-            window.ra = ra;
-            window.dec = dec;
-            window.amp = amp;
             window.voidseeker = new Voidseeker(starData, ra, dec, amp);
+            window.starfieldLoaded = false;
+            window.pointsLoaded = false;
+            window.triangulationLoaded = false;
+            window.edgesLoaded = false;
+            window.voidLoaded = false;
         });
 };
