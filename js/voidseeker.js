@@ -59,68 +59,86 @@ export class Voidseeker {
         console.time("setEdges");
         // Get array of edges
         var tmp;
-        var edgeList = [];
+        var edgeList = []; // Edges know their points, distance and triangles
         var edgeListInner = [];
+        var edgeListTmp = [...new Array(this.points.length / 2)].map(() => []); // For optimization
         for (var i = 0; i < this.triangles.length; i += 3) {
-            const d1 = [
-                Math.min(this.triangles[i], this.triangles[i + 1]),
-                Math.max(this.triangles[i], this.triangles[i + 1]),
-                edgeLengCalc(
-                    this.points[this.triangles[i] * 2],
-                    this.points[this.triangles[i] * 2 + 1],
-                    this.points[this.triangles[i + 1] * 2],
-                    this.points[this.triangles[i + 1] * 2 + 1]
-                ),
-                i,
-                null,
-            ];
-            tmp = edgeList.find((elm) => elm[0] == d1[0] && elm[1] == d1[1]); // FIX THIS
-            if (tmp === undefined) {
-                edgeList.push(d1);
+            const point1 = this.triangles[i];
+            const point2 = this.triangles[i + 1];
+            const point3 = this.triangles[i + 2];
+
+            // Edge 1
+            tmp = edgeListTmp[Math.min(point1, point2)]?.find(
+                (elm) => elm[1] == Math.max(point1, point2)
+            );
+            if (tmp) {
+                tmp[4] = i;
+                edgeListInner.push(tmp);
             } else {
-                tmp = edgeList.indexOf(tmp); // FIX THIS
-                edgeList[tmp][4] = i;
-                edgeListInner.push(edgeList[tmp]);
+                const edge1 = [
+                    Math.min(point1, point2), // point 1
+                    Math.max(point1, point2), // point 2
+                    edgeLengCalc(
+                        this.points[point1 * 2],
+                        this.points[point1 * 2 + 1],
+                        this.points[point2 * 2],
+                        this.points[point2 * 2 + 1]
+                    ),
+                    i, // triangle
+                    null, // triangle
+                ];
+                edgeListTmp[Math.min(point1, point2)].push(edge1);
             }
-            const d2 = [
-                Math.min(this.triangles[i], this.triangles[i + 2]),
-                Math.max(this.triangles[i], this.triangles[i + 2]),
-                edgeLengCalc(
-                    this.points[this.triangles[i] * 2],
-                    this.points[this.triangles[i] * 2 + 1],
-                    this.points[this.triangles[i + 2] * 2],
-                    this.points[this.triangles[i + 2] * 2 + 1]
-                ),
-                i,
-                null,
-            ];
-            tmp = edgeList.find((elm) => elm[0] == d2[0] && elm[1] == d2[1]); // FIX THIS
-            if (tmp === undefined) {
-                edgeList.push(d2);
+
+            // Edge 2
+            tmp = edgeListTmp[Math.min(point1, point3)]?.find(
+                (elm) => elm[1] == Math.max(point1, point3)
+            );
+            if (tmp) {
+                tmp[4] = i;
+                edgeListInner.push(tmp);
             } else {
-                tmp = edgeList.indexOf(tmp); // FIX THIS
-                edgeList[tmp][4] = i;
-                edgeListInner.push(edgeList[tmp]);
+                const edge2 = [
+                    Math.min(point1, point3), // point 1
+                    Math.max(point1, point3), // point 2
+                    edgeLengCalc(
+                        this.points[point1 * 2],
+                        this.points[point1 * 2 + 1],
+                        this.points[point3 * 2],
+                        this.points[point3 * 2 + 1]
+                    ),
+                    i, // triangle
+                    null, // triangle
+                ];
+                edgeListTmp[Math.min(point1, point3)].push(edge2);
             }
-            const d3 = [
-                Math.min(this.triangles[i + 1], this.triangles[i + 2]),
-                Math.max(this.triangles[i + 1], this.triangles[i + 2]),
-                edgeLengCalc(
-                    this.points[this.triangles[i + 1] * 2],
-                    this.points[this.triangles[i + 1] * 2 + 1],
-                    this.points[this.triangles[i + 2] * 2],
-                    this.points[this.triangles[i + 2] * 2 + 1]
-                ),
-                i,
-                null,
-            ];
-            tmp = edgeList.find((elm) => elm[0] == d3[0] && elm[1] == d3[1]); // FIX THIS
-            if (tmp === undefined) {
-                edgeList.push(d3);
+
+            // Edge 3
+            tmp = edgeListTmp[Math.min(point2, point3)]?.find(
+                (elm) => elm[1] == Math.max(point2, point3)
+            );
+            if (tmp) {
+                tmp[4] = i;
+                edgeListInner.push(tmp);
             } else {
-                tmp = edgeList.indexOf(tmp); // FIX THIS
-                edgeList[tmp][4] = i;
-                edgeListInner.push(edgeList[tmp]);
+                const edge3 = [
+                    Math.min(point2, point3), // point 1
+                    Math.max(point2, point3), // point 2
+                    edgeLengCalc(
+                        this.points[point2 * 2],
+                        this.points[point2 * 2 + 1],
+                        this.points[point3 * 2],
+                        this.points[point3 * 2 + 1]
+                    ),
+                    i, // triangle
+                    null, // triangle
+                ];
+                edgeListTmp[Math.min(point2, point3)].push(edge3);
+            }
+        }
+        for (var i = 0; i < edgeListTmp.length; i++) {
+            for (var j = 0; j < edgeListTmp[i].length; j++) {
+                edgeList.push(edgeListTmp[i][j]);
             }
         }
 
@@ -134,7 +152,7 @@ export class Voidseeker {
             this.edgesInner.length;
         document.getElementById("vis-void").removeAttribute("disabled", "");
 
-        // Generate triang - edge
+        // Generate triang - edge  // Obtein edge from triang position
         var triangEdge = Array(this.triangles.length / 3);
         for (var i = 0; i < this.edges.length; i++) {
             var idx1 = this.edges[i][3] / 3;
