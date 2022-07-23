@@ -225,11 +225,9 @@ const render = () => {
             }
         }
     } else {
-        if (window.triangulationLoaded) {
-            window.triangulationLoaded = false;
-            const mesh = scene.getObjectByName("triangulation");
-            scene.remove(mesh);
-        }
+        window.triangulationLoaded = false;
+        const mesh = scene.getObjectByName("triangulation");
+        scene.remove(mesh);
     }
 
     // Void

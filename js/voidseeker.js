@@ -182,14 +182,15 @@ export class Voidseeker {
         // Optimization (?)
         var valid_edges = this.edgesInner.valueOf();
 
-        // Search sets (ALL -> check for alternative)
+        // Search sets
         while (marked_triangules_count < this.triangles.length / 3) {
             var triangle_set = [];
             var triangle_set_idx = [];
             var area = 0;
-            // Search longes edge (unmarked triangules)
-            for (var le_idx = 0; le_idx < this.edges.length; le_idx++) {
-                var le = this.edges[this.edges.length - 1 - le_idx];
+            var le_idx = 0; // longest edge
+            // Search longest edge (unmarked triangules -> O(n))
+            for (var idx = 0; idx < this.edges.length; idx++) {
+                var le = this.edges[this.edges.length - 1 - idx];
                 if (le[4]) {
                     if (
                         !marked_triangules[le[3]] &&
@@ -229,6 +230,7 @@ export class Voidseeker {
                             this.edges[this.triangEdge[le[4] / 3][1]][2],
                             this.edges[this.triangEdge[le[4] / 3][2]][2]
                         );
+                        le_idx = idx;
                         break;
                     }
                 }
@@ -244,99 +246,90 @@ export class Voidseeker {
             var found = true;
             while (found) {
                 found = false;
-                for (var e = 0; e < valid_edges.length; e++) {
-                    var t1 = valid_edges[e][3];
-                    var t2 = valid_edges[e][4];
-                    if (!t2) {
-                        console.log("Impossible case");
-                        continue;
-                    }
-                    var t1_inc = triangle_set.includes(t1); // Check
-                    var t2_inc = triangle_set.includes(t2); // Check
-                    if (!t1_inc && !t2_inc) continue;
-
-                    if (t1_inc && t2_inc) {
-                        valid_edges.splice(e, 1);
-                        e--;
-                        continue;
-                    }
-                    // If t1 is not in the system, check longest edge
-                    if (!t1_inc) {
-                        if (marked_triangules[t1]) continue;
-                        var p1 = this.triangles[t1] * 2;
-                        var p2 = this.triangles[t1 + 1] * 2;
-                        var p3 = this.triangles[t1 + 2] * 2;
-                        var dmax = Math.max(
-                            edgeLengCalc(
-                                this.points[p1],
-                                this.points[p1 + 1],
-                                this.points[p2],
-                                this.points[p2 + 1]
-                            ),
-                            edgeLengCalc(
-                                this.points[p1],
-                                this.points[p1 + 1],
-                                this.points[p3],
-                                this.points[p3 + 1]
-                            ),
-                            edgeLengCalc(
-                                this.points[p2],
-                                this.points[p2 + 1],
-                                this.points[p3],
-                                this.points[p3 + 1]
-                            )
-                        );
-                        if (dmax == valid_edges[e][2]) {
+                for (var t = 0; t < triangle_set.length; t++) {
+                    var triangIdx = triangle_set[t] / 3;
+                    var triang = this.triangEdge[triangIdx];
+                    // Edge 1
+                    var ed1 = this.edges[triang[0]];
+                    var neighbor1Idx = ed1[3] === triangIdx ? ed1[4] : ed1[3];
+                    if (neighbor1Idx && !marked_triangules[neighbor1Idx]) {
+                        var neighbor1TriangEdges =
+                            this.triangEdge[neighbor1Idx / 3];
+                        if (
+                            Math.max(
+                                this.edges[neighbor1TriangEdges[0]][2],
+                                this.edges[neighbor1TriangEdges[1]][2],
+                                this.edges[neighbor1TriangEdges[2]][2]
+                            ) === ed1[2]
+                        ) {
                             found = true;
-                            triangle_set.push(t1);
-                            marked_triangules[t1] = true;
-                            marked_triangules_count++;
-                            triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
-                            valid_edges.splice(e, 1);
-                            e--;
+                            triangle_set.push(neighbor1Idx);
+                            marked_triangules[neighbor1Idx] = true;
+                            triangle_set_idx.push(
+                                this.triangles[neighbor1Idx],
+                                this.triangles[neighbor1Idx + 1],
+                                this.triangles[neighbor1Idx + 2]
+                            );
                             area += areaCalc(
-                                this.edges[this.triangEdge[t1 / 3][0]][2],
-                                this.edges[this.triangEdge[t1 / 3][1]][2],
-                                this.edges[this.triangEdge[t1 / 3][2]][2]
+                                this.edges[neighbor1TriangEdges[0]][2],
+                                this.edges[neighbor1TriangEdges[1]][2],
+                                this.edges[neighbor1TriangEdges[2]][2]
                             );
                         }
-                    } else {
-                        if (marked_triangules[t2]) continue;
-                        var p1 = this.triangles[t2] * 2;
-                        var p2 = this.triangles[t2 + 1] * 2;
-                        var p3 = this.triangles[t2 + 2] * 2;
-                        var dmax = Math.max(
-                            edgeLengCalc(
-                                this.points[p1],
-                                this.points[p1 + 1],
-                                this.points[p2],
-                                this.points[p2 + 1]
-                            ),
-                            edgeLengCalc(
-                                this.points[p1],
-                                this.points[p1 + 1],
-                                this.points[p3],
-                                this.points[p3 + 1]
-                            ),
-                            edgeLengCalc(
-                                this.points[p2],
-                                this.points[p2 + 1],
-                                this.points[p3],
-                                this.points[p3 + 1]
-                            )
-                        );
-                        if (dmax == valid_edges[e][2]) {
+                    }
+                    // Edge 2
+                    var ed2 = this.edges[triang[1]];
+                    var neighbor2Idx = ed2[3] === triangIdx ? ed2[4] : ed2[3];
+                    if (neighbor2Idx && !marked_triangules[neighbor2Idx]) {
+                        var neighbor2TriangEdges =
+                            this.triangEdge[neighbor2Idx / 3];
+                        if (
+                            Math.max(
+                                this.edges[neighbor2TriangEdges[0]][2],
+                                this.edges[neighbor2TriangEdges[1]][2],
+                                this.edges[neighbor2TriangEdges[2]][2]
+                            ) === ed2[2]
+                        ) {
                             found = true;
-                            triangle_set.push(t2);
-                            marked_triangules[t2] = true;
-                            marked_triangules_count++;
-                            triangle_set_idx.push(p1 / 2, p2 / 2, p3 / 2);
-                            valid_edges.splice(e, 1);
-                            e--;
+                            triangle_set.push(neighbor2Idx);
+                            marked_triangules[neighbor2Idx] = true;
+                            triangle_set_idx.push(
+                                this.triangles[neighbor2Idx],
+                                this.triangles[neighbor2Idx + 1],
+                                this.triangles[neighbor2Idx + 2]
+                            );
                             area += areaCalc(
-                                this.edges[this.triangEdge[t2 / 3][0]][2],
-                                this.edges[this.triangEdge[t2 / 3][1]][2],
-                                this.edges[this.triangEdge[t2 / 3][2]][2]
+                                this.edges[neighbor2TriangEdges[0]][2],
+                                this.edges[neighbor2TriangEdges[1]][2],
+                                this.edges[neighbor2TriangEdges[2]][2]
+                            );
+                        }
+                    }
+                    // Edge 3
+                    var ed3 = this.edges[triang[2]];
+                    var neighbor3Idx = ed3[3] === triangIdx ? ed3[4] : ed3[3];
+                    if (neighbor3Idx && !marked_triangules[neighbor3Idx]) {
+                        var neighbor3TriangEdges =
+                            this.triangEdge[neighbor3Idx / 3];
+                        if (
+                            Math.max(
+                                this.edges[neighbor3TriangEdges[0]][2],
+                                this.edges[neighbor3TriangEdges[1]][2],
+                                this.edges[neighbor3TriangEdges[2]][2]
+                            ) === ed3[2]
+                        ) {
+                            found = true;
+                            triangle_set.push(neighbor3Idx);
+                            marked_triangules[neighbor3Idx] = true;
+                            triangle_set_idx.push(
+                                this.triangles[neighbor3Idx],
+                                this.triangles[neighbor3Idx + 1],
+                                this.triangles[neighbor3Idx + 2]
+                            );
+                            area += areaCalc(
+                                this.edges[neighbor3TriangEdges[0]][2],
+                                this.edges[neighbor3TriangEdges[1]][2],
+                                this.edges[neighbor3TriangEdges[2]][2]
                             );
                         }
                     }
