@@ -48,3 +48,7 @@ Visit https://icuellar.com/voidseeker/
 - [Delaunator](https://github.com/mapbox/delaunator): JS library for Delaunay triangulations.
 - [Bulma](https://bulma.io/documentation/): CSS framework.
 - [Parcel](https://parceljs.org/): Build tool.
+
+---
+## Contributors
+- Ignacio Cuellar: ignacio.cuellar@ug.uchile.cl
